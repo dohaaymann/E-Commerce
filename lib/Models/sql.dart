@@ -15,12 +15,10 @@ class SQLDB{
     var database=await getDatabasesPath();
     path=join(database,"JWstore.db");
     var mydb=await openDatabase(path,onCreate: create,version:1,onUpgrade: upgrade);
-    print("database created");
     return mydb;
   }
   upgrade(Database db,int oldversion,int newversion)async{
     create(db, newversion);
-    print("------------ upgrade -----------");
   }
   create(Database db, int version) async {
     await db.execute('''
@@ -43,42 +41,42 @@ class SQLDB{
       image_details TEXT
     )
   ''');
-    print("CREATE WAS DONE");
   }
   insert(var table,var values)async{
     Database? mydb=await db;
     // var res= await mydb?.rawInsert(sql);
     var res= await mydb?.insert('$table',values);
-    print("Insert WAS DONE");
     return res;
   }
   read(var table)async{
     Database? mydb=await db;
     var res= await mydb?.query("$table");
-    print("readdata WAS DONE");
     return res;
   }
   select(var idp)async{
     Database? mydb=await db;
     var res= await mydb?.rawQuery('SELECT quantity FROM Cart WHERE id=$idp');
-    print("Selected WAS DONE");
     return res;
   }
   selectsum()async{
     Database? mydb=await db;
     var res= await mydb?.rawQuery('SELECT COUNT(*) FROM Cart');
-    print("Selected WAS DONE");
     return res;
   }
   existornot(var idp)async{
     Database? mydb=await db;
     var res= await mydb?.rawQuery("SELECT EXISTS(SELECT * FROM Favorite WHERE id = $idp)");
-    // print("Selected WAS DONE");
     return res;
-  } exist(var idp) async {
+  }
+  exist(var idp)async{
+    Database? mydb=await db;
+    var res= await mydb?.rawQuery("SELECT EXISTS(SELECT 1 FROM Favorite WHERE id = $idp)");
+    int exists = Sqflite.firstIntValue(res!) ?? 0;
+    return exists;
+  }
+  get(var idp) async {
     Database? mydb = await db;
-    var res = await mydb?.rawQuery("SELECT COUNT(*) FROM Favorite WHERE id = ?",
-        [idp]);
+    var res = await mydb?.rawQuery("SELECT COUNT(*) FROM Favorite WHERE id = ?",[idp]);
     return res;
   }
 
@@ -86,20 +84,17 @@ class SQLDB{
     Database? mydb=await db;
     var res= await mydb?.update('Favorite',value,where:"quantity" );
     // var res= await mydb?.rawUpdate(sql);
-    print("update WAS DONE");
     return res;
   }
   updateall(var q,var id)async{
     Database? mydb=await db;
     var res= await mydb?.rawUpdate("UPDATE Cart SET quantity=$q where id=$id");
     // var res= await mydb?.rawUpdate(sql);
-    print("update all WAS DONE");
     return res;
   }
   delete(var table,var idp) async {
     Database? mydb = await db;
     var res = await mydb?.rawDelete("DELETE FROM $table WHERE id = $idp");
-    print("DELETE WAS DONE");
     return res;
   }
 

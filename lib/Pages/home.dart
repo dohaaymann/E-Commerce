@@ -1,13 +1,24 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletons/skeletons.dart';
+import 'package:test0/Models/sql.dart';
 import 'package:test0/Pages/catagory.dart';
 import 'package:test0/page.dart';
 import '../Bool.dart';
+import '../Constant/productcontroller.dart';
 import '../Models/database.dart';
 import '../Constant/links.dart';
+import '../Models/productmodel.dart';
 import '../Widgets/item_w.dart';
+import '../Widgets/shimmer.dart';
+import '../main.dart';
+import 'cart/testtt.dart';
 import 'item.dart';
 
 class home extends StatefulWidget {
@@ -27,16 +38,36 @@ class _homeState extends State<home> {
     "images/Falda-Earrings.jpg",
     "images/Dulce-Earrings.jpg"
   ];
-  late database db;
+  var db=database();
+  var sql=SQLDB();
   var value;
  List s=[];
+  Future<bool> existInHive(String idp) async {
+    bool exists = Hive.box('Favorite').containsKey(idp);
+    return exists;
+  }
+  // check_Fav(List idp) async {
+  //   print(idp);
+  //   check_love=[];
+  //   for(var i=0;i<idp.length;i++){
+  //     if(check_love.length==idp.length){
+  //       break;
+  //     }else if(check_love.length<idp.length){
+  //       check_love.add(await existInHive(idp[i]));
+  //     }else{
+  //       break;
+  //     }
+  //   }
+  //   print(check_love);
+  // }
+  List loves=[];
   check_Fav(List idp) async {
     check_love=[];
     for(var i=0;i<idp.length;i++){
       if(check_love.length==idp.length){
         break;
       }else{
-        var t=await sql.exist(idp[i]);
+        var t=await sql.get(idp[i]);
         value=t[0]["COUNT(*)"];
         if(value.toString()=='1'){
           check_love.add(true);
@@ -48,24 +79,53 @@ class _homeState extends State<home> {
       }
     }
   }
-  List loves=[];
   Future<dynamic> getProducts() async {
     var response = await db.postRequest(linkviewtrend, {});
-    await check_Fav(await response['data'].map((item) => item['idp']).toList());
+    // var response = await db.postRequest(linkgetdata, {});
+    await check_Fav(await response['data'].map((item) => item['id']).toList());
     // return response;
   }
   Future<dynamic> getP() async {
+    // var response = await db.postRequest(linkgetdata, {});
     var response = await db.postRequest(linkviewtrend, {});
     return response;
   }
+  Future<List<Data>> getTrendingProducts() async {
+    var response = await productcontroller.get_data();
+    print(response);
+
+    List<Data> trendingProducts = response.where((product) => product.trend == '1').toList();
+    return trendingProducts;
+  }
+  fun()async{
+    var x=await productcontroller.get_data();
+     print(x);
+     print(x[1]);
+     print(x[1].image);
+     await mybox?.put("products", x);
+  }
+   fetchData() async {
+    var results = mybox?.get("trend");
+    print(results.runtimeType);
+    await check_Fav(await results.map((item) => item['idp']).toList());
+    await Future.delayed(Duration(seconds: 2));
+    return results;
+  }
   @override
   late Future _tasks;
+  late AnimationController _controller;
   @override
   void initState() {
     db = database();
-    getProducts();
-    _tasks=getP();
     super.initState();
+    fetchData();
+    // getProducts();
+    // getTrendingProducts();
+    // _tasks=getP();
+    // _controller = AnimationController(
+    //   duration: const Duration(seconds: 2), // Duration for one full rotation
+    //   vsync: this, // This is where the TickerProvider is needed
+    // )..repeat();
   }
 
   @override
@@ -94,7 +154,6 @@ class _homeState extends State<home> {
                     indicatorColor: Colors.black,
                     indicatorBackgroundColor: Colors.grey,
                     onPageChanged: (value) {
-                      // print('Page changed: $value');
                     },
                     autoPlayInterval: 3000,
                     isLoop: true,
@@ -138,38 +197,38 @@ class _homeState extends State<home> {
                   ),
                 ),
                 FutureBuilder(
-                  future: _tasks,
+                  future: fetchData()??[],
                   builder: (context, AsyncSnapshot snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return shimmer(10);
                     } else
                       if (snapshot.hasError) {
                       return Center(
                         child: Text("Error: ${snapshot.error}"),
                       );
-                    } else if (snapshot.hasData) {
-                      return GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-                          // // childAspectRatio: 0.7,
-                          crossAxisSpacing: 10,
-                          // mainAxisSpacing:10,
-                          crossAxisCount: 2,
-                          // childAspectRatio:0.8
-                          mainAxisExtent:265,
-                        ),
-                        shrinkWrap: true,
-                        itemCount: snapshot.data['data'].length,
-                        itemBuilder: (BuildContext ctx, i) {
-                          return productItem(context, snapshot.data, i);
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text("Loading.."),
-                      );
+                    } else if (!snapshot.hasData) {
+                        return CircularProgressIndicator();
+                      }
+                      else if (snapshot.hasData) {
+                        var data = snapshot.data ?? [];
+                        print("data::::$data");
+                        return GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: 10,
+                            crossAxisCount: 2,
+                            mainAxisExtent: 265,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: data.length,
+                          itemBuilder: (BuildContext ctx, i) {
+                            return productItem(context,data, i);
+                          },
+                        );
+                      } else {
+                        return const Center(
+                          child: Text("Loading.."),
+                        );
                     }
                   },
                 ),
@@ -180,7 +239,7 @@ class _homeState extends State<home> {
     );
   }
   Widget productItem(BuildContext context, dynamic data, int index) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       Bool.list_home = check_love;
       if (index < check_love.length) { // Check if the index is within the range
         return InkWell(
@@ -188,98 +247,114 @@ class _homeState extends State<home> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => item(
-                  data['data'][index]['idp'],
-                  data['data'][index]['name'],
-                  data['data'][index]['price'],
-                  data['data'][index]['image'],
-                  data['data'][index]['details_image'],
-                    (){
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => page(0),));
-                    }
+                    data[index]['idp'],
+                    data[index]['name'],
+                    data[index]['price'],
+                    data[index]['image'],
+                    data[index]['details_image'],
                 ),
               ),
             );
           },
-          child: Column(
-            children: [
-              Container(
+      child: Column(
+      children: [
+        Container(
+          height: 180,
+          width: double.maxFinite,
+          decoration: const ShapeDecoration(shape: StadiumBorder()),
+          child: CachedNetworkImage(
+            imageUrl: "${data[index]['image']}",
+            fit: BoxFit.fill,
+            placeholder: (context, url) => SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                width: double.infinity,
                 height: 180,
-                width: double.maxFinite,
-                decoration: const ShapeDecoration(shape: StadiumBorder()),
-                child: Image.network(
-                  "$linkImageRoot/${data['data'][index]['image']}",
-                  fit: BoxFit.fill,
+                shape: BoxShape.rectangle,
+              ),
+            ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        ),
+        Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Text(
+                  "${data[index]['name']}",
+                  style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                 ),
               ),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left:8),
-                      child: Text(
-                        "${data['data'][index]['name']}",
-                        style: const TextStyle(fontSize:19, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Text(
+                      "${data[index]['price']} EGP",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.green,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left:8),
-                          child: Text(
-                            "${data['data'][index]['price']} EGP",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize:18,color: Colors.green),
-                          ),
-                        ),
-                        const Expanded(child: SizedBox()),
-                        IconButton(
-                          isSelected: Bool.list_home[index],
-                          icon: const FaIcon(
-                            FontAwesomeIcons.heart,
-                            size: 20,
-                          ),
-                          selectedIcon: const FaIcon(
-                            FontAwesomeIcons.solidHeart,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                          onPressed: () async {
-                            if (check_love[index]) {
-                              await sql.delete('Favorite', data['data'][index]['idp']);
-                              Bool.list_ch_home(index, false);
-                            } else {
-                              await sql.insert('Favorite', {
-                                "id": data['data'][index]['idp'],
-                                'name': data['data'][index]['name'],
-                                'price': data['data'][index]['price'],
-                                'image': data['data'][index]['image'],
-                                'image_details': data['data'][index]['details_image']
-                              });
-                              Bool.list_ch_home(index, true);
-                            }
-                          },
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                  ),
+                  const Expanded(child: SizedBox()),
+                  Consumer<provide>(builder: (context, Bool, child) {
+                    // print("dd");
+                    // check_Fav(data.map((item) => item['idp']).toList());
+                    return IconButton(
+                      isSelected: Bool.list_home[index],
+                      icon: const FaIcon(
+                        FontAwesomeIcons.heart,
+                        size: 20,
+                      ),
+                      selectedIcon: const FaIcon(
+                        FontAwesomeIcons.solidHeart,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      onPressed: () async {
+                        if (check_love[index]) {
+                          await sql.delete('Favorite', data[index]['idp']);
+                          Bool.list_ch_home(index, false);
+                        } else {
+                          await sql.insert('Favorite', {
+                            "id": data[index]['idp'],
+                            'name': data[index]['name'],
+                            'price': data[index]['price'],
+                            'image': data[index]['image'],
+                            'image_details': data[index]['details_image']
+                          });
+                          Bool.list_ch_home(index, true);
+                        }
+                              },
+                            );
+                          })
+                        ],
+                      )
+                    ]),
               ),
             ],
           ),
         );
       } else {
-        return const SizedBox(); // Return an empty widget if the index is out of range
+        return const Text("ffffffffffffffff"); // Return an empty widget if the index is out of range
       }
     });
   }
 
   Widget categoryButton(String imagePath,String page) {
     return InkWell(
-      onTap: () {
-       Navigator.of(context).push(MaterialPageRoute(builder: (context) => catagory(page),));
+      onTap: ()async{
+        var res = await sql.read("Favorite");
+       print(res);
+        Get.to(()=> catagory(page));
+       // Get.to(()=>MyImageWidget( imageName: 'Adley-Bracelet-768x768.jpg',));
       },
       child: Container(
         margin: const EdgeInsets.only(right: 10),padding: const EdgeInsets.all(10),

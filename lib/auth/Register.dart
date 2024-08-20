@@ -9,6 +9,8 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:test0/page.dart';
 import '../Bool.dart';
 
+import '../Constant/links.dart';
+import '../Pages/item.dart';
 import '../Widgets/CustomText.dart';
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -19,14 +21,14 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   @override
-  var obscure = false,__wait=false;
+  var obscure = false;
   final __formKey = GlobalKey<FormState>();
   var fname = TextEditingController(), lname =TextEditingController()
   , remail = TextEditingController(), rpass =TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       return SingleChildScrollView(
         padding:
         EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -56,8 +58,26 @@ class _RegisterState extends State<Register> {
                   child:Customtext("Password",rpass)),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: __wait?const CircularProgressIndicator():ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () async {
+                    late BuildContext dialogContext = context;
+                    showDialog(
+                        context: dialogContext,
+                        builder: (BuildContext context) {
+                          return Container(
+                              color: Colors.black45,
+                              height: double.infinity,
+                              child: const Center(
+                                  child: SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child:
+                                      CircularProgressIndicator(
+                                        color: Colors
+                                            .blueAccent,
+                                        strokeWidth: 7,
+                                      ))));
+                        });
                     UserCredential user;
                     if (__formKey.currentState!.validate()) {
                       try {
@@ -66,7 +86,23 @@ class _RegisterState extends State<Register> {
                             email: remail.text, password: rpass.text)
                             .then((value) async {
                           user = await auth.signInWithEmailAndPassword(
-                              email: remail.text, password: rpass.text);
+                              email: remail.text, password: rpass.text).then((value) {
+                            Timer(const Duration(seconds: 3), () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => page(2),
+                              ));
+                            });
+                            return value;
+                              },);
+
+                          var response = await db.postRequest(linkadduser,{
+                                'email':remail.text,
+                                'fname':fname.text,
+                                'lname':lname.text,
+                                'pass':rpass.text,
+                                'phone':null,
+                                } );
+
                           await FirebaseFirestore.instance
                               .collection("account")
                               .doc(remail.text)
@@ -78,20 +114,14 @@ class _RegisterState extends State<Register> {
                             "phone": null
                           });
                         }).catchError((err) {
+                          Navigator.of(context).pop(dialogContext);
                           return Get.snackbar("Error", err.message,
                               backgroundColor: Colors.red,
                               colorText: Colors.white);
                         });
                       } catch (e) {
-                        print("%%%%%%%%%%%%%%5$e");
-                      }
-                      __wait=__wait;
-                      Timer(const Duration(seconds: 3), () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => page(2),
-                        ));
-                      });
-                                        }
+                        // Navigator.pop(dialogContext);
+                      }                                        }
                   },
                   style: ElevatedButton.styleFrom(
                       // fixedSize: Size(200, 50),

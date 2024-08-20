@@ -9,6 +9,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:test0/page.dart';
 import '../Bool.dart';
+import '../Constant/links.dart';
+import '../Pages/item.dart';
 import 'Register.dart';
 import 'Signin.dart';
 
@@ -32,7 +34,7 @@ final User = FirebaseFirestore.instance.collection("account");
   }
 @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       return Scaffold(
           resizeToAvoidBottomInset: false,
           body: Container(
@@ -85,7 +87,6 @@ final User = FirebaseFirestore.instance.collection("account");
                                         child: InkWell(
                                           onTap: () {
                                             Bool.ch_bT();
-                                            print("hello:${Bool.b}");
                                           },
                                           child: const Text(
                                             "Sign in",
@@ -107,7 +108,6 @@ final User = FirebaseFirestore.instance.collection("account");
                                         child: InkWell(
                                           onTap: () {
                                             Bool.ch_bF();
-                                            print("Register:${Bool.b}");
                                           },
                                           child: const Text(
                                             "Register",
@@ -131,9 +131,9 @@ final User = FirebaseFirestore.instance.collection("account");
                               children: [
                                 IconButton(
                                     onPressed: () async {
-                                      print("--------");
+                                      late BuildContext dialogContext = context;
                                       showDialog(
-                                          context: context,
+                                          context: dialogContext,
                                           builder: (BuildContext context) {
                                             return Container(
                                                 color: Colors.black45,
@@ -146,7 +146,7 @@ final User = FirebaseFirestore.instance.collection("account");
                                                         CircularProgressIndicator(
                                                           color: Colors
                                                               .blueAccent,
-                                                          strokeWidth:5,
+                                                          strokeWidth: 7,
                                                         ))));
                                           });
                                       final FirebaseAuth auth =
@@ -164,12 +164,16 @@ final User = FirebaseFirestore.instance.collection("account");
                                           idToken: googleSignInAuthentication
                                               ?.idToken,
                                         );
-                                        print("--------");
                                         await auth.signInWithCredential(credential).then((value)async{
                                           var authResult = await auth.signInWithCredential(credential);
                                         var user = authResult.user;
-                                        print("User Name: ${user?.displayName}");
-                                        print("User Email ${user?.email}");
+                                          var response = await db.postRequest(linkadduser,{
+                                            'email':'${user?.email}',
+                                            'fname':'${user?.displayName}',
+                                            'lname':'${user?.displayName}',
+                                            'pass':null,
+                                            'phone':null,
+                                          } );
                                           await FirebaseFirestore.instance
                                               .collection("account")
                                               .doc(user?.email)
@@ -198,12 +202,13 @@ final User = FirebaseFirestore.instance.collection("account");
                                                             ))));
                                               });
                                           Timer(const Duration(seconds: 3), () {
+                                            Navigator.of(context).pop(dialogContext);
                                             Get.to(() => page(2));
                                           });
                                         });
 
                                       } catch (r) {
-                                        print("ERRRRRRRRROR:$r");
+                                        Navigator.of(context).pop(dialogContext);
                                       }
                                     },
                                     icon: Image.asset(

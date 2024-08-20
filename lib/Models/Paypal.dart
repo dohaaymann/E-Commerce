@@ -16,8 +16,6 @@ class paypal extends StatefulWidget {
 class _paypalState extends State<paypal> {
   @override
   void initState() {
-    print("${widget.total}");
-    print("${widget.items}");
     // TODO: implement initState
     super.initState();
   }
@@ -73,11 +71,9 @@ class _paypalState extends State<paypal> {
                 ],
                 note: "Contact us for any questions on your order.",
                 onSuccess: (Map params) async {
-                  print("\n\n\n\n\nonSuccess: $params \n\n\n\n\n");
                   Get.to(()=>const payment_success());
                 },
                 onError: (error) {
-                  print("\n\n\n\n\nonError: $error \n\n\n\n\n");
                   Navigator.pop(context);
                 },
                 onCancel: () {

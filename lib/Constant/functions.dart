@@ -26,14 +26,10 @@ class functions{
   get_all()async{
     List res=[];
     for(int i=0;i<fav.length;i++){
-      var response=await db.postRequest(linkviewitem,{
-        'idp':fav[i]
-      });
-      print(response['data']);
-      res.add(response['data']);
+      var response=await db.postRequest(linkgetdata, {});
+      var item = response['data'].firstWhere((item) => item['idp'] == '${fav[i]}', orElse: () => null);
+      res.add(item['data']);
     }
-    print("--------------------");
-    print(res);
     for (var innerList in res) {
       for (var innerMap in innerList) {
         price .add(innerMap['price']);
@@ -41,30 +37,19 @@ class functions{
         idp .add(innerMap['idp']);
         image .add(innerMap['image'].replaceAll(' ', ''));
         image_details .add(innerMap['image_details']);
-        // print('Price: $prices');
       }
     }
-    print("--------------------");
-    print(image);
-    print(idp);
-    print(name);
-    print(price);
-    print(fav);
-    print("--------------------");
   }
   List name_c=[],idp_c=[],price_c=[],image_c=[],image_details_c=[];
   get_carts()async{
     var res=await sql.read("Cart");
-    print(res);
     for (var innerMap in res) {
       price_c.add(innerMap['price']);
       name_c.add(innerMap['name']);
       idp_c.add(innerMap['idp']);
       image_c.add(innerMap['image'].replaceAll(' ', ''));
       image_details_c.add(innerMap['image_details']);
-      // print('Price: $prices');
     }
-    print(name);
     return res;
   }
   get_sum(){

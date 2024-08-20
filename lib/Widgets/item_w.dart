@@ -13,8 +13,7 @@ class item_w extends StatefulWidget {
   final image, title, price, idp, love, image_details;
   Function? fun;
 
-  item_w(this.image, this.title, this.price, this.idp, this.love,
-      this.image_details,this.fun, {super.key});
+  item_w(this.image, this.title, this.price, this.idp, this.love,this.image_details,this.fun, {super.key});
 
   @override
   State<item_w> createState() => _item_wState();
@@ -22,14 +21,14 @@ class item_w extends StatefulWidget {
 
 final auth = FirebaseAuth.instance;
 var fav = FirebaseFirestore.instance.collection("Favorite");
-SQLDB sql = SQLDB();
 
 class _item_wState extends State<item_w> {
   @override
 
   Widget build(BuildContext context) {
     var l=widget.love;
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    var sql = SQLDB();
+    return Consumer<provide>(builder: (context, Bool, child) {
       return Container(
           alignment: Alignment.center,
           decoration: const BoxDecoration(
@@ -42,8 +41,8 @@ class _item_wState extends State<item_w> {
                 width: double.maxFinite,
                 decoration: const ShapeDecoration(shape: StadiumBorder()),
                 child: Image.network(
-                  "$linkImageRoot/${widget.image}",
-                  fit: BoxFit.fill,
+                "https://firebasestorage.googleapis.com/v0/b/store-291d5.appspot.com/o/${widget.image}?alt=media&token=3436486f-ff70-42c7-b687-7b61fcab930c",
+                 fit: BoxFit.fill,
                 ),
               ),
               // Expanded(child: SizedBox()),
@@ -81,7 +80,6 @@ class _item_wState extends State<item_w> {
                               size: 20,
                             ),
                             onPressed: () async {
-                              print(l);
                               if (widget.love) {
                                 await sql.delete('Favorite', widget.idp);
                                 setState(() {
@@ -99,7 +97,6 @@ class _item_wState extends State<item_w> {
                                 });
                               }
                               setState(() {
-                                print(l);
                               });
                             }),
                       ],

@@ -15,7 +15,7 @@ class Customtext extends StatefulWidget {
 }
 
 class _CustomtextState extends State<Customtext> {
-  bool obscure = true;
+  bool obscure = false;
  String? _validateInput(String? value) {
     if (value == null || value.isEmpty) {
       return 'This field cannot be empty';
@@ -42,16 +42,17 @@ class _CustomtextState extends State<Customtext> {
           FocusManager.instance.primaryFocus?.unfocus();
         },
         controller:widget.controller,
-        obscureText: !obscure,
+        obscureText:widget.hinttext == 'Password'?!obscure:false,
         style: const TextStyle(fontSize: 19),
         decoration: InputDecoration(
           suffixIcon: widget.hinttext == 'Password'
               ? IconButton(
-            icon: !obscure
+            icon: obscure
                 ? Icon(Icons.remove_red_eye,color:purplefav)
                 : FaIcon(CupertinoIcons.eye_slash, color:purplefav),
             onPressed: () {
               setState(() {
+                print(obscure);
                 obscure = !obscure;
               });
             },

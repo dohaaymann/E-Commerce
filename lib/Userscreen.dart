@@ -31,7 +31,6 @@ class _UserscreenState extends State<Userscreen> {
 
   Future<void> delete(var id) async {
     var res = await sql.delete('Favorite', id);
-    print(res);
     setState(() {});
   }
 
@@ -47,15 +46,12 @@ class _UserscreenState extends State<Userscreen> {
   // color: Color.fromRGBO(206, 147, 216, 4)
   @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       Bool.list_Fav=favoriteList;
       // _task=FfavoriteList;
       return Scaffold(
         appBar: AppBar(
           actions: [IconButton(onPressed: (){
-            print(favoriteList);
-            print( Bool.list_Fav);
-            print(Future.value(Bool.list_Fav));
           }, icon:const Icon(Icons.contact_support_rounded))],
         ),
         body:  Container(
@@ -110,7 +106,6 @@ class _UserscreenState extends State<Userscreen> {
                         itemBuilder: (BuildContext ctx, i) {
                           return InkWell(
                             onTap: () {
-                              print(Bool.list_Fav);
                               // Navigator.of(context).push(MaterialPageRoute(
                               //   builder: (context) => item(
                               //       snapshot.data![i]['id'],
@@ -123,7 +118,8 @@ class _UserscreenState extends State<Userscreen> {
                             child: Column(
                               children: [
                                 SizedBox(height:180,width: double.maxFinite,
-                                  child:Image.network("$linkImageRoot/${snapshot.data![i]['image'].toString()}",
+                                  child:Image.network(
+                                    "https://firebasestorage.googleapis.com/v0/b/store-291d5.appspot.com/o/${snapshot.data![i]['image'].toString()}?alt=media&token=3436486f-ff70-42c7-b687-7b61fcab930c",
                                     fit: BoxFit.fill,
                                   ),
                                 ), Align(

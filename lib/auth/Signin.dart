@@ -9,6 +9,7 @@ import 'package:test0/page.dart';
 import '../Bool.dart';
 
 import '../Widgets/CustomText.dart';
+import 'forget_pass.dart';
 class signin extends StatefulWidget {
   const signin({Key? key}) : super(key: key);
 
@@ -25,7 +26,7 @@ class _signinState extends State<signin> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(
+    return Consumer<provide>(
       builder: (context, Bool, child) => SingleChildScrollView(
         padding:
         EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -44,7 +45,7 @@ class _signinState extends State<signin> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Get.to(() => forgetpass());
+                    Get.to(() => forget_pass());
                   },
                   child: const Text(
                     "forgot Password?",
@@ -54,45 +55,66 @@ class _signinState extends State<signin> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child:wait?const CircularProgressIndicator():ElevatedButton(
+                child:ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      late BuildContext dialogContext = context;
+                      showDialog(
+                          context: dialogContext,
+                          builder: (BuildContext context) {
+                            return Container(
+                                color: Colors.black45,
+                                height: double.infinity,
+                                child: const Center(
+                                    child: SizedBox(
+                                        height: 50,
+                                        width: 50,
+                                        child:
+                                        CircularProgressIndicator(
+                                          color: Colors
+                                              .blueAccent,
+                                          strokeWidth: 7,
+                                        ))));
+                          });
                       UserCredential user;
                       try {
                         user = await auth.signInWithEmailAndPassword(email: semail.text, password: spass.text)
                             .catchError((err) {
+                          Navigator.of(context).pop(dialogContext);
                           if (err.code == "invalid-email") {
                             return Get.snackbar(
                                 "Error", "Please enter a valid email address",
+                                messageText: Text( "ًPlease enter a valid email address",style: TextStyle(color: Colors.white),),
                                 backgroundColor: Colors.red);
                           }
                           if (err.message ==
                               "The password is invalid or the user does not have a password.") {
                             return Get.snackbar(
                                 "Error", "ًWrong email address or password",
-                                backgroundColor: Colors.red);
+                                backgroundColor: Colors.red,
+                              messageText: Text( "ًWrong email address or password",style: TextStyle(color: Colors.white),)
+                           );
                           }
                           if (err.message ==
                               "There is no user record corresponding to this identifier. The user may have been deleted.") {
                             return Get.snackbar(
                                 "Error", "Email is not register with us",
+                                messageText: Text("Email is not register with us",style: TextStyle(color: Colors.white),),
                                 backgroundColor: Colors.red);
                           }
                           return Get.snackbar("Error", err.message,
+                              messageText: Text("${err.message}",style: TextStyle(color: Colors.white),),
                               backgroundColor: Colors.red);
                         });
                       } on FirebaseAuthException catch (e) {
+                        Navigator.of(context).pop(dialogContext);
                         if (e.code == 'user-not-found') {
-                          print('No user found for that email.');
                         } else if (e.code == 'wrong-password') {
-                          print('Wrong password provided for that user.');
                         }
                       }
-                      print("-------------");
-                      print("email:  ${semail.text}");
-                      print("pass:  ${spass.text}");
                       wait=!wait;
                       Timer(const Duration(seconds: 3), () {
+                        Navigator.of(context).pop(dialogContext);
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => page(2),));
                       });
                                         }

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -5,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:test0/Pages/cart/cart.dart';
+import 'package:test0/Pages/googlemap.dart';
 import 'package:test0/Pages/home.dart';
 import 'Bool.dart';
 import 'Models/database.dart';
@@ -15,19 +19,17 @@ import 'Pages/Favorite.dart';
 import 'Pages/cart/testtt.dart';
 import 'Pages/catagory.dart';
 import 'Pages/user.dart';
+
 final auth=FirebaseAuth.instance;
 class page extends StatefulWidget{
   final numofpage;
   page(this.numofpage, {super.key}){
-    print("Welcome");
     void checkinternet()async{
       try {
         final result = await InternetAddress.lookup('example.com');
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-          print('connected');
         }
       } on SocketException catch (_) {
-        print('not connected');
       }
     }
     checkinternet();
@@ -44,7 +46,8 @@ class _pageState extends State<page> {
   var count;
   get_count()async{
     count=await sql.selectsum();
-  count=count[0]['COUNT(*)'];}
+  count=count[0]['COUNT(*)'];
+  }
 
   @override
   void initState(){
@@ -63,16 +66,14 @@ class _pageState extends State<page> {
       const Favorite(),
       const user(),
     ];
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       void checkinternet()async{
       try {
         final result = await InternetAddress.lookup('example.com');
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           Bool.ch_T_inter();
-          // print('connected');
         }
       } on SocketException catch (_) {
-        // print('not connected');
        Bool.ch_F_inter();
       }
     }
@@ -81,7 +82,7 @@ class _pageState extends State<page> {
           stream: connectivity.onConnectivityChanged,
           builder: (context, snapshot) {
         return (
-            !Bool.internet?forgetpass():
+            !Bool.internet?Network_Failed():
         Scaffold(
         body: PopScope(canPop: false,
           child: PageView(
@@ -139,41 +140,47 @@ class _pageState extends State<page> {
             ),
           ],
           onTap: (index) {
-            print('current selected index $index');
-            pageController.jumpToPage(index);
-
+            // pageController.jumpToPage(index);
+            pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300), // Duration of the animation
+              curve: Curves.easeInOut, // Curve of the animation
+            );
           },
-        ), appBar: AppBar(backgroundColor: Colors.transparent,
-        elevation: 4,
-        title: const Text("JW STORE",style: TextStyle(fontWeight: FontWeight.bold),),
-        centerTitle: true,
-        actions: [
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Stack(
-                children:[
-                  IconButton(onPressed:()async{
-                    Get.to(()=>const cart());
-                    // Get.to(()=>const CheckoutPage());
-                  },icon:const FaIcon(FontAwesomeIcons.cartShopping),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left:35),
-                      child: Container(
-                          decoration: const BoxDecoration(color:Colors.green
-                        ,shape: BoxShape.circle,
-                      ),padding: const EdgeInsets.all(4),
-                          child: Text("$count",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
+        ), appBar:  AppBar(backgroundColor: Colors.transparent,
+            elevation: 4,
+            title: const Text("JW STORE",style: TextStyle(fontWeight: FontWeight.bold),),
+            centerTitle: true,
+            actions: [
+            Consumer<provide>(builder: (context, Bool, child) {
+              get_count();
+            return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
+                    children:[
+                      IconButton(onPressed:()async{
+                        Get.to(()=>const cart());
+                        // Get.to(()=>googlemap());
+                        // Get.to(()=>MyImageWidget());
+                      },icon:const FaIcon(FontAwesomeIcons.cartShopping),
                       ),
-                    ),
-                  )
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left:35),
+                          child: Container(
+                              decoration: const BoxDecoration(color:Colors.green
+                            ,shape: BoxShape.circle,
+                          ),padding: const EdgeInsets.all(4),
+                              child: Text("$count",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
+                          ),
+                        ),
+                      )
 
-                ],
-              ))
-        ],
-      ),
+                    ],
+                  )); })
+            ],
+        ),
         drawer:Drawer(
           child: Column(children: [
             Padding(
@@ -201,10 +208,9 @@ class _pageState extends State<page> {
   }
 }
 
-  class forgetpass extends StatelessWidget {
+  class Network_Failed extends StatelessWidget {
   @override
-  forgetpass({super.key}){
-    // print("welcome dude");
+  Network_Failed({super.key}){
   }
   @override
   Widget build(BuildContext context) {

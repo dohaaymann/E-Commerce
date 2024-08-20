@@ -1,12 +1,12 @@
 import 'package:add_to_cart_button/add_to_cart_button.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:countnumberbutton/countnumberbutton.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:item_count_number_button/item_count_number_button.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletons/skeletons.dart';
 import 'package:slider_button/slider_button.dart';
 import 'package:test0/Models/sql.dart';
 import 'package:test0/page.dart';
@@ -66,7 +66,7 @@ class _cartState extends State<cart> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       return StreamBuilder<ConnectivityResult>(
         stream: connectivity.onConnectivityChanged,
         builder: (context, snapshot) {
@@ -74,16 +74,16 @@ class _cartState extends State<cart> {
               ? const offlinepage()
               : Scaffold(
               appBar: AppBar(
-                automaticallyImplyLeading: false,
-                leading: IconButton(
-                    onPressed: () {
-                      Get.to(() => page(0));
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                      color: Colors.white,
-                    )),
+                // automaticallyImplyLeading: false,
+                // leading: IconButton(
+                //     onPressed: () {
+                //       Get.to(() => page(0));
+                //     },
+                //     icon: const Icon(
+                //       Icons.arrow_back,
+                //       size: 30,
+                //       color: Colors.white,
+                //     )),
                 backgroundColor: const Color.fromRGBO(206, 147, 216, 4),
                 title: const Text(
                   "Shopping cart",
@@ -170,10 +170,17 @@ class _cartState extends State<cart> {
                                         children: [
                                           SizedBox(
                                             width: 103,
-                                            child: Image.network(
-                                              "$linkImageRoot/${snapshot.data![i]['image'].toString()}",
-                                              fit: BoxFit.fill,
-                                            ),
+                                            child:CachedNetworkImage(
+                                              imageUrl: "${snapshot.data![i]['image']}",fit: BoxFit.fill,
+                                              placeholder: (context, url) =>  SkeletonAvatar(
+                                                style: SkeletonAvatarStyle(
+                                                  width: double.infinity,
+                                                  height: 180,
+                                                  shape: BoxShape.rectangle,// Adjust as needed
+                                                ),
+                                              ),
+                                              errorWidget: (context, url, error) => Icon(Icons.error),
+                                            )
                                           ),
                                           Padding(
                                             padding:
@@ -237,7 +244,6 @@ class _cartState extends State<cart> {
                                               AddToCartCounterButton(
                                                 initNumber: amount[i],
                                                 counterCallback: (int) {
-                                                  print(int.toString());
                                                   setState(() {
                                                     if (int <= 0) {
                                                       amount[i]=1;

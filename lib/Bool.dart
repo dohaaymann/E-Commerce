@@ -25,7 +25,7 @@ class fields extends ChangeNotifier{
 }
 
 
-class Bool extends ChangeNotifier{
+class provide extends ChangeNotifier{
   var b=true;
   var email,pass,phone,obscure=false;
   var ver_ph,T_error=false,ver;
@@ -34,6 +34,16 @@ class Bool extends ChangeNotifier{
   List list_home=[];
   List list_cata=[];
   List list_Fav=[];
+
+  bool _hasFetchedFav = false;
+
+  bool get hasFetchedFav => _hasFetchedFav;
+
+  void setHasFetchedFav(bool value) {
+    _hasFetchedFav = value;
+    notifyListeners();
+  }
+
   list_ch_home(var x,var v) {
    list_home[x]=v;
     notifyListeners();

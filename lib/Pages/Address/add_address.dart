@@ -8,7 +8,8 @@ import '../../Constant/links.dart';
 import '../../Models/database.dart';
 
 class add_address extends StatefulWidget {
-  const add_address({Key? key}) : super(key: key);
+  final VoidCallback onPressed;
+   const add_address({super.key, required this.onPressed});
 
   @override
   State<add_address> createState() => _add_addressState();
@@ -140,11 +141,12 @@ class _add_addressState extends State<add_address> {
                 )),
           ),
           const SizedBox(height:30,),
-          CustomButton("Add",()async{
+          CustomButton("Add",street.text.isNotEmpty&&name_add.text.isNotEmpty ?
+                  ()async{
             var response = await db.postRequest(linkadd_address, {
               'user_id':"$id",
-               'State':"$state",
-               'City':"$city",
+               'State':"$state??''",
+               'City':"${city??''}",
                'Street':street.text,
                'Name_add':name_add.text,
             }).then((value) {
@@ -157,10 +159,10 @@ class _add_addressState extends State<add_address> {
               //     textColor: Colors.white,
               //     fontSize: 16.0
               // );
+              // Navigator.of(context).pop();
               Get.to(()=>const address());
             });
-            print(response.toString());
-          },250.0,40.0)
+          }:null,250.0,40.0)
         ],),
       ),
     );

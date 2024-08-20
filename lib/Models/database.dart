@@ -14,21 +14,19 @@ class database {
   Future<dynamic> postRequest(String url, Map data) async {
     try {
       var response = await http.post(Uri.parse(url), body: data,headers: myheaders);
+      // var response = await http.get(Uri.parse(url),headers: myheaders);
       if (response.statusCode == 200) {
         try {
           var responseBody =await json.decode((response.body));
           // jsonDecode(response.body);
           return responseBody;
         } catch (e) {
-          print("JSON decoding error: $e");
           return null; // Or handle the error according to your requirements
         }
       } else {
-        print('Error - Status Code: ${response.statusCode}');
         return null; // Or handle the error according to your requirements
       }
         } catch (e) {
-      print("Errorrr: $e"); // Print more descriptive error messages
       return null; // Or handle the error according to your requirements
     }
   }
@@ -48,7 +46,6 @@ class database {
       return jsonDecode(respone.body);
     }
     else{
-      print("Error ${myrequest.statusCode}");
     }
   }
 }

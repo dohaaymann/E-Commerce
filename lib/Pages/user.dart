@@ -1,14 +1,21 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test0/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../Bool.dart';
+import '../Constant/productcontroller.dart';
 import '../Constant/links.dart';
 import '../Models/database.dart';
+import '../Models/productmodel.dart';
 import '../auth/auth.dart';
 import 'Address/address.dart';
 import 'info.dart';
@@ -35,21 +42,48 @@ class user extends StatelessWidget {
             child: ElevatedButton(style:
             ElevatedButton.styleFrom(
                 fixedSize:const Size(300,50),side: const BorderSide(),backgroundColor: const Color.fromRGBO(103, 0, 92,4)),
-                onPressed: (){
+                onPressed: ()async{
                   Get.to(()=>const auth_());
+
+                  // Retrieve the serialized data from Hive
+                  // List<dynamic>? storedData = mybox?.get('Rings');
+                  // print(storedData);
+// Deserialize the data back into List<Data>
+//                   if (storedData != null) {
+//                     List<Data> deserializedResponse = storedData.map((item) => Data.fromJson(Map<String, dynamic>.from(item))).toList();
+//                     print(deserializedResponse.runtimeType); // Should print 'List<Data>'
+//                   }
+
+
+
+                  // var s='["sss","Ss"]';
+                  // print(s.runtimeType);
+                  // var w=s as List;
+                  // print(w.runtimeType);
+                  // print("$w");
+                  // await mybox?.put("products", await productcontroller.get_data().toString());
+                  // var x=await mybox?.get("products");
+                  // x=await productcontroller.getList(jsonDecode(x));
+                  //
+                  // print(x.runtimeType);
+                  // print(x.toString());
+                  // var x=await productcontroller.get_data();
+                  // print(x);
+                  // print(x[1]);
+                  // print(x[1].image);
+                  // await mybox?.put("products", x.toString());
+
+
+
+
                 }, child:const Text("Go to sign in",style: TextStyle(color:Colors.white,fontSize:23),)),
           ),const SizedBox(height: 90,),
           const Text("Follow Us !",style: TextStyle(fontSize: 20),),
           Row(mainAxisAlignment: MainAxisAlignment.center,children: [
             IconButton(onPressed: ()async{
-              // await auth.currentUser?.sendEmailVerification().then((value){print('Email Verification sent! Check your mail box');});
-              try{await auth.currentUser?.sendEmailVerification().then((value) => print("done")).catchError((e){print(e);});}
-              on FirebaseAuthException catch (e) {
+              // on FirebaseAuthException catch (e) {
                 // if (e.code == 'user-not-found') {
-                //   print('No user found for that email.');
                 // } else if (e.code == 'wrong-password') {
-                //   print('Wrong password provided for that user.');
-                print(e); }
 
             }, icon:FaIcon(FontAwesomeIcons.facebook,color: Colors.blue[900],size:35,)),
             IconButton(onPressed: ()async{
@@ -76,7 +110,9 @@ class user extends StatelessWidget {
   return StreamBuilder(
     stream: auth.authStateChanges(),
     builder: (context, snapshot) {
-      if (snapshot.hasData) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }else if (snapshot.hasData) {
         return account_page();
       } else {
         return user_page();
@@ -103,12 +139,23 @@ class _account_pageState extends State<account_page> {
       return false;
     }
   }
+
     Future<dynamic> get_data() async {
     var db = database();
-    var response = await db.postRequest(linkget_id, {'email': "${auth.currentUser!.email}"});
-    print( response['data'][0]['id'].runtimeType);
+    var response_id = await db.postRequest(linkget_id, {'email': "${auth.currentUser!.email}"});
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('id', int.parse(response['data'][0]['id']));
+      await prefs.setInt('id', int.parse(response_id['data'][0]['id']));
+
+    var c= await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).get();
+    await mybox?.put("fname", c.get("fname"));
+    await mybox!.put("lname", c.get("lname"));
+    await mybox!.put("phone", c.get("phone")??'');
+
+    var id = prefs.getInt('id');
+    var response_address = await db.postRequest(linkview_address, {'user_id':'$id'});
+    await mybox!.put("Address",response_address);
+
+    return response_id;
     }
 @override
   void initState() {
@@ -118,7 +165,7 @@ class _account_pageState extends State<account_page> {
   }
   @override
   Widget build(BuildContext context) {
-    return Consumer<Bool>(builder: (context, Bool, child) {
+    return Consumer<provide>(builder: (context, Bool, child) {
       return StreamBuilder(
         stream: auth.authStateChanges(),
         builder: (context, snapshot) {
@@ -217,42 +264,12 @@ class _account_pageState extends State<account_page> {
                          // Get.to(()=>payment_success());
                          // Get.to(()=>order_completed());
                          // Get.to(()=>Payment());
-                        print(auth.currentUser?.emailVerified);
                       }),
-                      ink("Currency", () async {
-                        try {
-                          await FirebaseAuth.instance.verifyPhoneNumber(
-                            phoneNumber: '+2${01028789903}',
-                            timeout: const Duration(seconds: 30),
-                            verificationCompleted: (PhoneAuthCredential
-                            credential) {},
-                            verificationFailed: (FirebaseAuthException e) {},
-                            codeSent: (String verificationId,
-                                int? resendToken) {
-                              PhoneAuthCredential credential =
-                              PhoneAuthProvider.credential(
-                                  verificationId: verificationId,
-                                  smsCode: "123123");
-                              auth.currentUser
-                                  ?.linkWithCredential(credential)
-                                  .then((value) => print("done"));
-                            },
-                            codeAutoRetrievalTimeout:
-                                (String verificationId) {
-                              // ver_id=verificationId;
-                            },
-                          );
-                        } catch (e) {
-                          print("/////////////////////////");
-                          print(e);
-                        }
+                      ink("My Orders", () async {
+
                       }),
-                      ink("Privacy policy", () async {
+                      ink("About us", () async {
                         Connectivity connectivity = Connectivity();
-                        print(connectivity.onConnectivityChanged);
-                        print(connectivity.checkConnectivity());
-                        print(connectivity);
-                        print("----------------------------------------");
                       }),
                     ],
                   ),
@@ -283,11 +300,10 @@ class _account_pageState extends State<account_page> {
                     onTap: () async {
                       Get.defaultDialog(
                         title: "Sign Out",
-                        content: Text("Are you sure you want to sign out?"),
+                        content: const Text("Are you sure you want to sign out?"),
                         onCancel: (){},
                           textConfirm: "Yes",
                         onConfirm:()async{
-                          print(auth.currentUser?.email);
                         await auth.signOut().then((value) => Navigator.of(context).pop());}
                       );
                     },
@@ -350,8 +366,6 @@ class _account_pageState extends State<account_page> {
                             ),
                             IconButton(
                               onPressed: () {
-                                // print(auth.currentUser?.isAnonymous);
-                                // print(auth.currentUser?.email);
                               },
                               icon: const FaIcon(
                                 FontAwesomeIcons.youtube,

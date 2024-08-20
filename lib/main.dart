@@ -5,23 +5,61 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:test0/Models/database.dart';
 import 'package:test0/Models/sql.dart';
 import 'package:test0/Pages/Favorite.dart';
-import 'package:test0/Ver_ph.dart';
 import 'package:test0/auth/DeleteAccount.dart';
 import 'package:test0/page.dart';
 import 'Bool.dart';
+import 'Constant/productcontroller.dart';
+import 'Constant/links.dart';
+import 'Models/uploaddata.dart';
 import 'Pages/home.dart';
 import 'Pages/cart/cart.dart';
+import 'Pages/item.dart';
 import 'firebase_options.dart';
-
+Box? mybox;
+// Box? favbox;
+Box? cartbox;
 SQLDB sql = SQLDB();
+Future<Box> openhivebox(var boxname)async{
+  if(Hive.isBoxOpen(boxname)){
+    Hive.init((await getApplicationDocumentsDirectory()).path);
+  }
+  return await Hive.openBox(boxname);
+}
+set_catagory(){
+
+}
+get_products()async{
+  var db=database();
+  var response = await db.postRequest(linkview, {});
+  print("respone::::::::::$response");
+  if(response==null){
+    // await mybox?.put("products", await productcontroller.get_data());
+    print("respone");
+  }
+  else{
+    print("cash");
+    // await mybox?.put("products", response);
+  }
+}
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var appDocumentDirectory = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  // Hive.registerAdapter(DataAdapter());
+  mybox=await openhivebox("user_data");
+  cartbox=await openhivebox("Cart");
+  // favbox=await openhivebox("Favorite");
+  await get_products();
+  upload_data();
   Platform.isAndroid?
   await Firebase.initializeApp(
-    options: FirebaseOptions(
+    options: const FirebaseOptions(
       apiKey: "AIzaSyBkRiFIWAZ6n6DUsevbC_HduQfcaOCqCdo",
       appId: "1:189381920997:android:e718130d8717b8e41fec0c",
       messagingSenderId: "189381920997",
@@ -32,7 +70,7 @@ void main() async {
   );
   await sql.db;
   runApp(ChangeNotifierProvider(
-    create: (context) => Bool(),
+    create: (context) => provide(),
     child: const MyApp(),
   ));
 }
@@ -58,10 +96,7 @@ class MyApp extends StatelessWidget {
         "home": (context) => const home(),
         "Favorite": (context) => const Favorite(),
         'Delete_acc': (context) =>  DeleteAccount(),
-        "Ver_ph": (context) => code_ph(
-              ver_id: "",
-              phone: "",
-            )
+
       },
     );
   }

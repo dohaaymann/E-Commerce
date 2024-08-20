@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test0/Pages/Address/add_address.dart';
+import 'package:test0/main.dart';
 
 import '../../Constant/colors.dart';
 import '../../Constant/links.dart';
@@ -73,11 +74,9 @@ class _addressState extends State<address> {
 //       return await Geolocator.getCurrentPosition();
 //     } on MissingPluginException catch (e) {
 //       // Handle MissingPluginException here.
-//       print("MissingPluginException: $e");
 //       return Future.error("Location plugin is not implemented on this platform");
 //     } catch (e) {
 //       // Handle other exceptions here.
-//       print("Error: $e");
 //       return Future.error("Error getting current location");
 //     }
 //   }
@@ -109,8 +108,6 @@ class _addressState extends State<address> {
   //       hint: "Search City",
   //       // sessionToken: Uuid().generateV4(),
   //       //google_map_webservice package
-  //       onError: (err){ print(err);});
-  //   if (p==null)print("===========--------empytt----------------===========");
   //   // Return, null if p is null
   //   return p;
   // }
@@ -118,13 +115,9 @@ class _addressState extends State<address> {
   var id;
   Future<dynamic> get_data() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
-  id = prefs.getInt('id');
-    var response = await db.postRequest(linkview_address, {'user_id':'2'});
-    // var responsee = await db.postRequest(linkget_id, {'email':"dohaslam3@gmail.com"});
-    // print("**************${response}");
-     print(id.toString());
-     print(response);
-    return response;
+     id = prefs.getInt('id');
+    var response = await db.postRequest(linkview_address, {'user_id':'$id'});
+    return  response??mybox?.get("Address");
   }
   var _tasks;
   @override
@@ -164,13 +157,12 @@ class _addressState extends State<address> {
                         const Text("What is Your Location?",style: TextStyle(fontSize:30,fontWeight: FontWeight.bold),),
                         const Text("we need to know your location in order to suggest nearby service",textAlign:TextAlign.center,style: TextStyle(color: Colors.black54),)
                         ,CustomButton("Add Location",()async{
-                          Get.to(()=>const add_address());
+                          Get.to(()=>add_address(onPressed: () { Get.to(()=>const address());},));
                         },250.0,45.0)
                       ],
                     );
             }else if(snapshot.hasData) {
                var data=snapshot.data['data'];
-               // print("///////////////         ${snapshot.data['data']}");
                 return Stack(
                   children: [
                     Padding(
@@ -178,13 +170,13 @@ class _addressState extends State<address> {
                       child: Align(alignment: Alignment.bottomRight,
                         child: FloatingActionButton(
                           onPressed: (){
-                            Get.to(()=>const add_address());
+                            Get.to(()=> add_address(onPressed: () { Get.to(()=>const address()); },));
                           },
                           backgroundColor: purplefav,shape: const CircleBorder(),
                           child: const Icon(Icons.add,color:Colors.white,)),
                       ),
                     ),
-                    ListView.builder(itemCount:1,shrinkWrap:true,itemBuilder: (context, i) {
+                    ListView.builder(itemCount:data.length,shrinkWrap:true,itemBuilder: (context, i) {
                          return Column(
                      children: [
                         ListTile(
@@ -203,7 +195,6 @@ class _addressState extends State<address> {
                   ],
                 );
              }else {
-               print("object");
                return const Center(
                  child: Text("Loading.."),
                );

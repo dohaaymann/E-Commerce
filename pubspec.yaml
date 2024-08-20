@@ -58,19 +58,35 @@ dependencies:
   get: ^4.6.6
   flutter_paypal_checkout: ^1.0.1
   flutter_inappwebview: ^5.3.2
-#  google_maps_flutter: ^2.7.0
+  google_maps_flutter: ^2.7.0
 #  geolocator: ^12.0.0
   csc_picker: ^0.2.7
   geocoding: ^3.0.0
   shared_preferences: ^2.2.3
   item_count_number_button: ^1.9.2
   add_to_cart_button: ^0.0.6
+  fluttertoast: ^8.2.5
+
+
+  path: any
+  http: any
+  firebase_storage: ^11.7.7
+  dio: ^4.0.0
+  dio_http_cache: ^0.3.0
+  cached_network_image: ^3.3.1
+  hive: ^2.2.3
+  path_provider: ^2.0.15
+  skeletons: ^0.0.3
+
 
 
 dev_dependencies:
+  build_runner_core: ^7.2.2
+  build_runner: ^2.1.11
+  hive_generator: ^1.1.0
+#  json_serializable: ^6.6.2
   flutter_test:
     sdk: flutter
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
