@@ -2,10 +2,10 @@ import 'package:csc_picker/csc_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test0/Pages/Address/address.dart';
+import 'package:test0/Pages/User Pages/Address/address.dart';
 import 'package:test0/Widgets/CustomButton.dart';
-import '../../Constant/links.dart';
-import '../../Models/database.dart';
+import '../../../Constant/links.dart';
+import '../../../Models/database.dart';
 
 class add_address extends StatefulWidget {
   final VoidCallback onPressed;

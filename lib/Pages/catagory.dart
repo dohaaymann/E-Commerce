@@ -22,10 +22,10 @@ class catagory extends StatefulWidget {
   State<catagory> createState() => _catagoryState();
 }
 List<bool> check_love=[];
-// Future<bool> existInHive(var idp) async {
-//   bool exists = Hive.box('Favorite').containsKey("$idp");
-//   return exists;
-// }
+Future<bool> existInHive(var idp) async {
+  bool exists = Hive.box('Favorite').containsKey("$idp");
+  return exists;
+}
 class _catagoryState extends State<catagory>{
   @override
   database db=database();
@@ -34,77 +34,29 @@ class _catagoryState extends State<catagory>{
   var value;
 
   check_Fav(List idp) async {
-    // var s=await sql.exist('1');
-     // print(s);
-    print(idp);
-    print(await sql.read("Favorite"));
-    check_love=[];
+     check_love=[];
     for(var i=0;i<idp.length;i++){
       if(check_love.length==idp.length){
         break;
       }else{
         var value=await sql.exist(idp[i]);
-        print(await sql.exist('${idp[1]}'));
-        print(value);
         if(value.toString()=='1'){
-          print("88$value");
           check_love.add(true);
         }else if(value.toString()=='0'){
-          print("99$value");
           check_love.add(false);
         }else{
-          print("d");
           break;
         }
       }
     }
-    print(    check_love    );
   }
-
-
-  // get_product()async{
-  //   // var response=await db.postRequest(linkviewproduct,{
-  //   // 'type':widget.cata_name
-  //   // });
-  //   var response=await db.postRequest(linkgetdata,{});
-  //   print(response);
-  //   if (response != null && response['status'] == 'successful') {
-  //     print("///////////////////\n//////////////////////");
-  //     // Filter the items to find the one with idp = 2
-  //     var item = response['data'].firstWhere((item) => item['catagory'] =='${widget.cata_name} , orElse: () => null);
-  //     await check_Fav(await item['data'].map((item) => item['id']).toList());
-  //     return item;
-  //   }
-  //   // var item = response['data'].where((item) => item['catagory'] == '${widget.cata_name}').toList();
-  //   // print('\n\n\n $item');
-  //   // print(response);
-  //   return null;
-  // }
   fetchData() async {
     var results = mybox?.get("${widget.cata_name}");
-    var res = await sql.read("Favorite");
-    print(await results.map((item) => item['idp']).toList());
     await check_Fav(await results.map((item) => item['idp']).toList());
     await Future.delayed(Duration(seconds: 1));
     return results;
   }
-  // Future<List<Data>> get_items()async{
-  //   // print('${widget.cata_name}');
-  //   //   var response = await productcontroller.get_data();
-  //   //   print(response.runtimeType);
-  //   // var Dataa = Dataa();
-  //
-  //   // List serializedResponse = response.map((data) => data.toJson()).toList();
-  //
-  //   // await mybox?.put('${widget.cata_name}', response);
-  //
-  //   List<Data> Products = response.where((product) => product.catagory =='${widget.cata_name}').toList();
-  //     // print(Products);
-  //   await check_Fav(await Products.map((item) => item.idp).toList());
-  //     return Products;
-  // }
-
-  @override 
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -146,9 +98,7 @@ class _catagoryState extends State<catagory>{
                         // if(snapshot.data['statu s']=='fail'){
                         //   return const Center(child: Text("There's no notes"),);
                         // }
-                        print("555555555555555555");
                         var data = snapshot.data ?? [];
-                        print(data);
                         return GridView.builder(
                           shrinkWrap: true,
                           padding: const EdgeInsets.all(0),
@@ -176,7 +126,11 @@ class _catagoryState extends State<catagory>{
                                           data[index]['price'],
                                           data[index]['image'],
                                           data[index]['details_image'],
-                                        ));
+                                        ))?.then((_) {
+                                      setState(() {
+                                        (context as Element).reassemble();
+                                      });
+                                    });
                                   },
                                   child: Column(
                                     children: [
@@ -289,111 +243,3 @@ class _catagoryState extends State<catagory>{
             )));
   }
 }
-// Widget productItem(BuildContext context, dynamic data, int index) {
-//   return Consumer<provide>(builder: (context, Bool, child) {
-//     Bool.list_cata = check_love;
-//     // fetchData();
-//     if (index < check_love.length) { //
-//       return InkWell(
-//         onTap: () async{
-//           Get.to(()=>
-//                   item(
-//                     data[index]['idp'],
-//                     data[index]['name'],
-//                     data[index]['price'],
-//                     data[index]['image'],
-//                     data[index]['details_image'],
-//                   ));
-//         },
-//         child: Column(
-//           children: [
-//             Container(
-//               height: 180,
-//               width: double.maxFinite,
-//               decoration: const ShapeDecoration(shape: StadiumBorder()),
-//               child: CachedNetworkImage(
-//                 imageUrl: "${data[index]['image']}",fit: BoxFit.fill,
-//                 placeholder: (context, url) =>  SkeletonAvatar(
-//                   style: SkeletonAvatarStyle(
-//                     width: double.infinity,
-//                     height: 180,
-//                     shape: BoxShape.rectangle,
-//                     // borderRadius: BorderRadius.circular(50), // Adjust as needed
-//                   ),
-//                 ),
-//                 errorWidget: (context, url, error) => Icon(Icons.error),
-//               )
-//             ),
-//             Container(
-//               decoration: const BoxDecoration(
-//                 color: Colors.white,
-//               ),
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Padding(
-//                     padding: const EdgeInsets.only(left:8),
-//                     child: Text(
-//                       // "${data[index].name}",
-//                       "${data[index]['name']}",
-//                       style: const TextStyle(fontSize:16,fontFamily:"Rubik-Medium",fontWeight: FontWeight.bold
-//                       // style: TextStyle(fontSize: 20,fontFamily:"Kanit-Regular",fontWeight: FontWeight.bold
-//                       ),
-//                     ),
-//                   ),
-//                   Row(
-//                     children: [
-//                       Padding(
-//                         padding: const EdgeInsets.only(left: 10),
-//                         child: Text(
-//                           // "${data[index].price} EGP",
-//                           "${data[index]['price']} EGP",
-//                           style: const TextStyle(
-//                               fontWeight: FontWeight.bold, fontSize:18,color: Colors.green),
-//                         ),
-//                       ),
-//                       const Expanded(child: SizedBox()),
-//                       Consumer<provide>(builder: (context, Bool, child) {
-//                           return IconButton(
-//                             isSelected: Bool.list_cata[index],
-//                             icon: const FaIcon(
-//                               FontAwesomeIcons.heart,
-//                               size: 20,
-//                             ),
-//                             selectedIcon: const FaIcon(
-//                               FontAwesomeIcons.solidHeart,
-//                               color: Colors.red,
-//                               size: 20,
-//                             ),
-//                             onPressed: () async {
-//                               if (check_love[index]) {
-//                                 await favbox?.delete(data[index]['idp']);
-//                                 Bool.list_ch_cata(index, false);
-//                               } else {
-//                                 await favbox?.put("${data[index]['idp']}", {
-//                                   'idp':data[index]['idp'],
-//                                   'name': data[index]['name'],
-//                                   'price': data[index]['price'],
-//                                   'image': data[index]['image'],
-//                                   'image_details': data[index]['details_image']
-//                                 });
-//                                 Bool.list_ch_cata(index, true);
-//                               }
-//                             },
-//                           );
-//                         }
-//                       ),
-//                     ],
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       );
-//     }
-//     else {
-//       return const SizedBox();
-//     }
-//   });
-// }

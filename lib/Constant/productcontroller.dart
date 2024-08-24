@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+// import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:test0/Constant/links.dart';
 import 'package:test0/Models/database.dart';
 import '../Models/productmodel.dart';
 
 class productcontroller{
    static get_data()async{
-    var url="https://8858-102-45-81-161.ngrok-free.app/data";
+    var url="https://7d76-197-34-178-50.ngrok-free.app/data";
     // var url=linkview;  //http://192.168.1.15/JW store/view.php;
     var db=database();
     // var response = await db.postRequest(linkviewtrend, {});

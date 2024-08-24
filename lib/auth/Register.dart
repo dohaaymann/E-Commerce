@@ -60,6 +60,7 @@ class _RegisterState extends State<Register> {
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
                   onPressed: () async {
+
                     late BuildContext dialogContext = context;
                     showDialog(
                         context: dialogContext,
@@ -87,7 +88,7 @@ class _RegisterState extends State<Register> {
                             .then((value) async {
                           user = await auth.signInWithEmailAndPassword(
                               email: remail.text, password: rpass.text).then((value) {
-                            Timer(const Duration(seconds: 3), () {
+                            Timer(const Duration(seconds: 1), () {
                               Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => page(2),
                               ));

@@ -23,10 +23,10 @@ class forget_pass extends StatelessWidget {
               style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
             ),const Padding(
               padding: EdgeInsets.only(left: 8),
-              child: Text("Please enter your email address. We will send you an email to reset your password."
-                ,style: TextStyle(fontSize:17),),
+              child: Text("Enter the email associated with your account and we'll send you an email with instructions to reset your password."
+                ,style: TextStyle(fontSize:16,color: Colors.black54),),
             ),
-            const Padding(padding: EdgeInsets.all(8)),
+            SizedBox(height:25,),
             const Padding(
               padding: EdgeInsets.only(left: 8,top: 8),
               child: Text("Email",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
@@ -38,6 +38,7 @@ class forget_pass extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                   )),
             ),
+            SizedBox(height:20,),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(

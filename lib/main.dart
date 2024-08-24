@@ -13,6 +13,7 @@ import 'package:test0/Models/sql.dart';
 import 'package:test0/Pages/Favorite.dart';
 import 'package:test0/auth/DeleteAccount.dart';
 import 'package:test0/page.dart';
+import 'package:test0/splash_screen.dart';
 import 'Bool.dart';
 import 'Constant/productcontroller.dart';
 import 'Constant/links.dart';
@@ -21,6 +22,7 @@ import 'Pages/home.dart';
 import 'Pages/cart/cart.dart';
 import 'Pages/item.dart';
 import 'firebase_options.dart';
+import 'onboarding.dart';
 Box? mybox;
 // Box? favbox;
 Box? cartbox;
@@ -89,7 +91,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: page(0),
+      home: mybox!.isNotEmpty?Splash_Screen():Onboarding_1(),
       routes: {
         "cart": (context) => const cart(),
         // "page":(context) => page(),

@@ -24,3 +24,5 @@ const String linkget_id="$linkservername/get_id.php";
 
 
 const String linkautocomplete="https://google-api31.p.rapidapi.com/map";
+
+const String apiKey="AIzaSyDJx73U3qe9YC-aZ6XewWXmMDtOlob_evQ";

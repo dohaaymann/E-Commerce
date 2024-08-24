@@ -12,9 +12,11 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:test0/Bool.dart';
 
-import '../Ver_ph.dart';
-import '../main.dart';
-import '../page.dart';
+import '../../Widgets/CustomButton.dart';
+import '../../main.dart';
+import '../../main.dart';
+import '../../page.dart';
+import 'Ver_ph.dart';
 final auth=FirebaseAuth.instance;
 final User=FirebaseFirestore.instance.collection("account");
 class info extends StatelessWidget {
@@ -25,8 +27,9 @@ class info extends StatelessWidget {
 var phone2='';
   void getdata() async{
    _fname.text=mybox?.get("fname");
-  _phone.text=mybox?.get("phone")??'';
-  phone2=mybox?.get("phone")??'';
+   _phone.text=mybox?.get("phone").length>10?mybox?.get("phone").substring(3):mybox?.get("phone")??'';
+   phone2=mybox?.get("phone").length>10?mybox?.get("phone").substring(3):mybox?.get("phone")??'';
+  // phone2=mybox?.get("phone").substring(3)??'';
   _lname.text=mybox?.get("lname");
   }
   info({super.key}){
@@ -40,11 +43,7 @@ var phone2='';
   @override
   Widget build(BuildContext context) {
     return Consumer<provide>(builder: (context,Bool, child) {
-      return StreamBuilder<ConnectivityResult>(
-        stream: connectivity.onConnectivityChanged,
-        builder: (context, snapshot) {
-          return snapshot.data == ConnectivityResult.none?const forgetpass():
-     Scaffold(
+      return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
             leading: IconButton(onPressed: (){Get.to(()=>page(2));}, icon:const Icon(Icons.arrow_back,size: 30,color: Colors.black,)),
@@ -66,14 +65,16 @@ var phone2='';
               const Text("Email",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
               TextField( readOnly:true,decoration: InputDecoration(hintText:auth.currentUser!.email,border: const UnderlineInputBorder()),),
               const Padding(padding: EdgeInsets.only(top: 4)),
-                  auth.currentUser!.emailVerified?const SizedBox.shrink(): Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: ()async{
+                  auth.currentUser!.emailVerified?
+                  const SizedBox.shrink():
+                  Align(alignment: Alignment.bottomRight,child: ElevatedButton(onPressed: ()async{
                     late BuildContext sdialogContext = context;
                     late BuildContext cdialogContext = context;
                     late BuildContext dialogContext = context;
                     try{
                       await auth.currentUser?.sendEmailVerification().then((value) async{
                         await auth.currentUser?.reload();
-                        Timer(const Duration(seconds:5), (){
+                        Timer(const Duration(seconds:1), (){
                           Navigator.of(context).pop(sdialogContext);});
                         showDialog(
                             context: context,
@@ -82,14 +83,15 @@ var phone2='';
                               return Container( color:Colors.black45,height:double.infinity,child: const Center(child:
                               SizedBox(height:50,width:50,child: CircularProgressIndicator(color: Colors.black,strokeWidth:7,))));});
 
-                        Timer(const Duration(seconds: 2), (){
-                          Navigator.of(context).pop(cdialogContext);
                           showDialog(context: context, builder:(context) {
-                            sdialogContext = context;
-                            return const AlertDialog(title: Align(alignment:Alignment.center,child: FaIcon(FontAwesomeIcons.solidCircleCheck,color: Colors.green,size: 60,)),
-                              contentPadding: EdgeInsets.only(top: 20,bottom: 15,left: 10,right:10),
-                              content: Text("Ther verification code has been sent to your email",style: TextStyle(fontSize: 20),textAlign: TextAlign.center,),);
-                          },);
+                            return AlertDialog(title:
+                            Align(alignment:Alignment.center,child:
+                            Image.asset("icons/verify (1).png",height: 100,)
+                            ), contentPadding: EdgeInsets.only(top: 20,bottom: 15,left: 10,right:10),
+                              content: Text("The verification code has been sent to your email",style: TextStyle(fontSize: 20),textAlign: TextAlign.center,),
+                              actions: [Center(child: CustomButton("Done",(){Navigator.of(sdialogContext).pop();},100.0, 45.0))],
+
+                          );
                         });
                       }).catchError((e){ Fluttertoast.showToast(
                           msg:"$e",
@@ -101,7 +103,7 @@ var phone2='';
                           fontSize: 16.0
                       );});}
                     on FirebaseAuthException catch (e) {
-                      Timer? timer = Timer(const Duration(milliseconds: 3000), (){
+                      Timer? timer = Timer(const Duration(milliseconds:3), (){
                         Navigator.of(context).pop(dialogContext);
                       });
                       return showDialog(
@@ -135,11 +137,30 @@ var phone2='';
                Align(alignment: Alignment.center,
                   child: ElevatedButton(
                     onPressed: () async {
+                      print("ccccccccccccchhhhhhhhaaaaaannnngeeeeee");
                       late BuildContext dialogContext = context;
                       late BuildContext sdialogContext = context;
                       late BuildContext cdialogContext = context;
                       if(_phone.text.isNotEmpty&&_phone.text!=phone2){
                       try {
+                        // 795164
+                        showDialog(
+                            context: dialogContext,
+                            builder: (BuildContext context) {
+                              return Container(
+                                  color: Colors.black45,
+                                  height: double.infinity,
+                                  child: const Center(
+                                      child: SizedBox(
+                                          height: 50,
+                                          width: 50,
+                                          child:
+                                          CircularProgressIndicator(
+                                            color: Colors
+                                                .white,
+                                            strokeWidth: 7,
+                                          ))));
+                            });
                         await FirebaseAuth.instance.verifyPhoneNumber(
                           phoneNumber: "+20${_phone.text}",
                           timeout: const Duration(seconds: 30),
@@ -150,7 +171,8 @@ var phone2='';
                             showDialog(
                                 // "the phone number provided is incorrect. Please enter the phone number in a format"
                                 context: context,
-                                builder: (BuildContext context) {dialogContext = context;
+                                builder: (BuildContext context) {
+                                  dialogContext = context;
                                   return AlertDialog(
                                       insetPadding: const EdgeInsets.all(4),
                                       contentPadding: const EdgeInsets.all(12),
@@ -168,11 +190,11 @@ var phone2='';
                                 });
                           },
                           codeSent: (String verificationId, int? resendToken) {
-                            Timer(const Duration(seconds: 3), (){
+                            Timer(const Duration(seconds:1), (){
                               // Navigator.of(context).pop(cdialogContext);
                               Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => code_ph(
-                                  ver_id: verificationId.toString(),
+                                  verId: verificationId.toString(),
                                   phone:"+20${Bool.ph}",
                                 ),
                               ));
@@ -182,31 +204,17 @@ var phone2='';
                           verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {  },
                         )
                             .catchError((err) {
-                          Timer? timer = Timer(const Duration(milliseconds: 3000), (){
-                            Navigator.of(context).pop(dialogContext);
-                          });
-                          return showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                dialogContext=context;
-                                return AlertDialog(
-                                    insetPadding: const EdgeInsets.all(4),
-                                    contentPadding: const EdgeInsets.all(12),
-                                    shape: const OutlineInputBorder(
-                                        borderSide: BorderSide.none),
-                                    backgroundColor: Colors.black,
-                                    // backgroundColor:Color.fromRGBO(103, 0, 92,4),
-                                    content: Text(
-                                      err.message,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: Colors.white),
-                                    ));
-                              });
+                          Fluttertoast.showToast(
+                            msg: "Something went wrong.Please try again later.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
                         }).then((value) async {
-                          Timer(const Duration(seconds:3), (){
+                          Timer(const Duration(seconds:1), (){
                             Navigator.of(context).pop(sdialogContext);});
                           showDialog(
                               context: context,
@@ -214,13 +222,9 @@ var phone2='';
                                 cdialogContext = context;
                                 return Container( color:Colors.black45,height:double.infinity,child: const Center(child:
                                 SizedBox(height:50,width:50,child: CircularProgressIndicator(color: Colors.black,strokeWidth:7,))));});
-
-                          // _phone.text= (auth.currentUser?.phoneNumber)!;
-                          // var c= await User.doc(auth.currentUser?.email).update({"fname":_fname.text,"lname":_lname.text,"phone":_phone.text}).
-                          // then((value) {
-                          // });
                         });
                       } catch (e) {
+                        print("$e");
                         Fluttertoast.showToast(
                             msg:"$e",
                             toastLength: Toast.LENGTH_SHORT,
@@ -233,15 +237,29 @@ var phone2='';
                       }}
                       else
                       {
+                        print("addddddddddddddddddddd");
+
                         // =await auth.currentUser!.updatePhoneNumber(phoneCredential)
-                      var c= await User.doc(auth.currentUser?.email).
-                      update({"fname":_fname.text,"lname":_lname.text,"phone":_phone.text}).
-                      then((value) {
+                      var c= await User.doc(auth.currentUser?.email).update({"fname":_fname.text,"lname":_lname.text,"phone":_phone.text}).
+                      then((value)async{
+                        var c= await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).get();
+                        await mybox?.put("fname", c.get("fname"));
+                        await mybox!.put("lname", c.get("lname"));
+                        await mybox!.put("phone", c.get("phone")??'');
                         Navigator.of(context).pop();
                           Timer? timer = Timer(const Duration(milliseconds: 3000), (){
-                            Navigator.of(context).pop(dialogContext);
+                            // Navigator.of(context).pop(dialogContext);
                           });
-                          return showDialog(
+                          return Fluttertoast.showToast(
+                              msg: "Saved",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.green,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                            showDialog(
                               context: context,
                               builder: (BuildContext context) {dialogContext=context;
                               return
@@ -268,27 +286,6 @@ var phone2='';
           ),
         ),
       );},
-    );
-  });}
-}
-class forgetpass extends StatelessWidget {
-  const forgetpass({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body:Container(height: double.infinity,
-          decoration:const BoxDecoration(color:Colors.white),
-          child: Center(child:Column(children: [
-            const SizedBox(height: 200,),
-            Image.asset("icons/no-wifi.png",height:200),
-            const Text("Network Failed",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
-            const Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Text("Please check your connection",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.black54),),
-            ),
-          ]) ,),
-        )
     );
   }
 }

@@ -7,17 +7,26 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:test0/Pages/User Pages/Address/add_address.dart';
+
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test0/Pages/User%20Pages/Changepassword.dart';
+import 'package:test0/Pages/googlemap.dart';
+import 'package:test0/Widgets/CustomButton.dart';
+import 'package:test0/auth/DeleteAccount.dart';
 import 'package:test0/main.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../Bool.dart';
-import '../Constant/productcontroller.dart';
-import '../Constant/links.dart';
-import '../Models/database.dart';
-import '../Models/productmodel.dart';
-import '../auth/auth.dart';
-import 'Address/address.dart';
+import '../../Bool.dart';
+import '../../Constant/productcontroller.dart';
+import '../../Constant/links.dart';
+import '../../Models/database.dart';
+import '../../Models/productmodel.dart';
+import '../../auth/auth.dart';
+import '../../onboarding.dart';
+import 'package:test0/Pages/User Pages/Address/address.dart';
+import '../../splash_screen.dart';
+import '../cart/testtt.dart';
 import 'info.dart';
 var auth=FirebaseAuth.instance;
 class user extends StatelessWidget {
@@ -44,38 +53,6 @@ class user extends StatelessWidget {
                 fixedSize:const Size(300,50),side: const BorderSide(),backgroundColor: const Color.fromRGBO(103, 0, 92,4)),
                 onPressed: ()async{
                   Get.to(()=>const auth_());
-
-                  // Retrieve the serialized data from Hive
-                  // List<dynamic>? storedData = mybox?.get('Rings');
-                  // print(storedData);
-// Deserialize the data back into List<Data>
-//                   if (storedData != null) {
-//                     List<Data> deserializedResponse = storedData.map((item) => Data.fromJson(Map<String, dynamic>.from(item))).toList();
-//                     print(deserializedResponse.runtimeType); // Should print 'List<Data>'
-//                   }
-
-
-
-                  // var s='["sss","Ss"]';
-                  // print(s.runtimeType);
-                  // var w=s as List;
-                  // print(w.runtimeType);
-                  // print("$w");
-                  // await mybox?.put("products", await productcontroller.get_data().toString());
-                  // var x=await mybox?.get("products");
-                  // x=await productcontroller.getList(jsonDecode(x));
-                  //
-                  // print(x.runtimeType);
-                  // print(x.toString());
-                  // var x=await productcontroller.get_data();
-                  // print(x);
-                  // print(x[1]);
-                  // print(x[1].image);
-                  // await mybox?.put("products", x.toString());
-
-
-
-
                 }, child:const Text("Go to sign in",style: TextStyle(color:Colors.white,fontSize:23),)),
           ),const SizedBox(height: 90,),
           const Text("Follow Us !",style: TextStyle(fontSize: 20),),
@@ -87,17 +64,18 @@ class user extends StatelessWidget {
 
             }, icon:FaIcon(FontAwesomeIcons.facebook,color: Colors.blue[900],size:35,)),
             IconButton(onPressed: ()async{
+              Get.to(()=>Splash_Screen());
 
-              const url = 'https://www.facebook.com/profile.php?id=100006949608192';
-              if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url));
-              } else {
-                throw 'Could not launch $url';
-              }
+              // const url = 'https://www.facebook.com/profile.php?id=100006949608192';
+              // if (await canLaunchUrl(Uri.parse(url))) {
+              //   await launchUrl(Uri.parse(url));
+              // } else {
+              //   throw 'Could not launch $url';
+              // }
 
             }, icon:const FaIcon(FontAwesomeIcons.instagram,color: Colors.pink,size:35,)),
             IconButton(onPressed: ()async{
-              Navigator.of(context).pushNamed("forgotpass");
+
             }, icon:const FaIcon(FontAwesomeIcons.youtube,color: Colors.red,size:35,)),
           ],)
         ],),
@@ -141,15 +119,17 @@ class _account_pageState extends State<account_page> {
   }
 
     Future<dynamic> get_data() async {
+      print("${ await auth.currentUser!.phoneNumber}");
+    var c= await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).get();
+    await mybox?.put("fname", c.get("fname"));
+    await mybox?.put("pass", c.get("pass"));
+    await mybox!.put("lname", c.get("lname"));
+    await mybox!.put("phone", "${auth.currentUser!.phoneNumber??''}"??'');
+
     var db = database();
     var response_id = await db.postRequest(linkget_id, {'email': "${auth.currentUser!.email}"});
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('id', int.parse(response_id['data'][0]['id']));
-
-    var c= await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).get();
-    await mybox?.put("fname", c.get("fname"));
-    await mybox!.put("lname", c.get("lname"));
-    await mybox!.put("phone", c.get("phone")??'');
+      await prefs.setInt('id', int.parse(response_id['data'][0]['id']??'0'));
 
     var id = prefs.getInt('id');
     var response_address = await db.postRequest(linkview_address, {'user_id':'$id'});
@@ -257,6 +237,9 @@ class _account_pageState extends State<account_page> {
                               fontWeight: FontWeight.bold, fontSize: 23),
                         ),
                       ),
+                      ink("Change Password", () async {
+                        Get.to(()=>changepassword());
+                      }),
                       ink("Address", () async {
                          Get.to(()=>const address());
                          // Get.to(()=>CheckoutPage());
@@ -266,10 +249,10 @@ class _account_pageState extends State<account_page> {
                          // Get.to(()=>Payment());
                       }),
                       ink("My Orders", () async {
-
+                        // Get.to(()=>MyImageWidget());
                       }),
                       ink("About us", () async {
-                        Connectivity connectivity = Connectivity();
+                        Get.to(()=>googlemap());
                       }),
                     ],
                   ),
@@ -290,8 +273,8 @@ class _account_pageState extends State<account_page> {
                         ),
                       ),
                       ink("Delete account", () async {
-                        Navigator.of(context).pushNamed("Delete_acc");
-                      }),
+                        Get.to(()=>DeleteAccount());
+                       }),
                     ],
                   ),
                 ),
@@ -357,7 +340,9 @@ class _account_pageState extends State<account_page> {
                               ),
                             ),
                             IconButton(
-                              onPressed: () async {},
+                              onPressed: () async {
+                                Get.to(()=>Splash_Screen());
+                              },
                               icon: const FaIcon(
                                 FontAwesomeIcons.instagram,
                                 color: Colors.pink,
@@ -366,6 +351,27 @@ class _account_pageState extends State<account_page> {
                             ),
                             IconButton(
                               onPressed: () {
+                                // void checkAuthProvider() {
+                                  // Get the currently signed-in user
+                                  var user = FirebaseAuth.instance.currentUser;
+
+                                  if (user != null) {
+                                    // Loop through the provider data to check the provider ID
+                                    for (var userInfo in user.providerData) {
+                                      if (userInfo.providerId == 'password') {
+                                        print('This user is authenticated with email and password.');
+                                        // Perform actions specific to email/password authentication
+                                      } else if (userInfo.providerId == 'google.com') {
+                                        print('This user is authenticated with Google.');
+                                        // Perform actions specific to Google authentication
+                                      } else {
+                                        print('This user is authenticated with another provider: ${userInfo.providerId}');
+                                      }
+                                    }
+                                  } else {
+                                    print('No user is currently signed in.');
+                                  }
+                                // }
                               },
                               icon: const FaIcon(
                                 FontAwesomeIcons.youtube,

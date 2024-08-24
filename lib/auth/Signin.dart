@@ -83,26 +83,26 @@ class _signinState extends State<signin> {
                           Navigator.of(context).pop(dialogContext);
                           if (err.code == "invalid-email") {
                             return Get.snackbar(
-                                "Error", "Please enter a valid email address",
-                                messageText: Text( "ًPlease enter a valid email address",style: TextStyle(color: Colors.white),),
+                                "Error", "Please enter a valid email address",colorText: Colors.white,
+                                messageText: Text( "please enter a valid email address",style: TextStyle(color: Colors.white),),
                                 backgroundColor: Colors.red);
                           }
                           if (err.message ==
                               "The password is invalid or the user does not have a password.") {
                             return Get.snackbar(
-                                "Error", "ًWrong email address or password",
-                                backgroundColor: Colors.red,
+                                "Error", "Wrong email address or password",
+                                backgroundColor: Colors.red,colorText: Colors.white,
                               messageText: Text( "ًWrong email address or password",style: TextStyle(color: Colors.white),)
                            );
                           }
                           if (err.message ==
                               "There is no user record corresponding to this identifier. The user may have been deleted.") {
                             return Get.snackbar(
-                                "Error", "Email is not register with us",
+                                "Error", "Email is not register with us",colorText: Colors.white,
                                 messageText: Text("Email is not register with us",style: TextStyle(color: Colors.white),),
                                 backgroundColor: Colors.red);
                           }
-                          return Get.snackbar("Error", err.message,
+                          return Get.snackbar("Error", err.message,colorText: Colors.white,
                               messageText: Text("${err.message}",style: TextStyle(color: Colors.white),),
                               backgroundColor: Colors.red);
                         });
@@ -113,7 +113,7 @@ class _signinState extends State<signin> {
                         }
                       }
                       wait=!wait;
-                      Timer(const Duration(seconds: 3), () {
+                      Timer(const Duration(seconds: 1), () {
                         Navigator.of(context).pop(dialogContext);
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => page(2),));
                       });

@@ -3,7 +3,6 @@ import '../main.dart';
 
 class upload_data{
   upload_data(){
-    print("uuuuuuuuuuuppppppppppppl");
     upload_trend();
     upload_Bracelets();
     upload_Necklaces();
@@ -46,6 +45,11 @@ class upload_data{
     var Products = response.where((product) => product.catagory =='Pendants').toList();
     List serializedResponse = Products.map((data) => data.toJson()).toList();
     await mybox?.put('Pendants', serializedResponse);
+  }
+
+  Future updata_fav()async{
+    var res = await sql.read("Favorite");
+    return res;
   }
 
 }

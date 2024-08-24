@@ -1,20 +1,10 @@
-// import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:fancy_otp_text_fields/otp_text_fields_widget.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:flutter/cupertino.dart';
 // import 'package:flutter/material.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:get/get.dart';
-// import 'package:get/get_core/src/get_main.dart';
 // import 'package:hive/hive.dart';
-// import 'package:provider/provider.dart';
-// import 'package:skeletons/skeletons.dart';
-//
-// import '../../Bool.dart';
-// import '../../Constant/productcontroller.dart';
-// import '../../Models/productmodel.dart';
-// import '../../Widgets/shimmer.dart';
-// import '../../main.dart';
-// import '../item.dart';
+// import 'package:otp_text_field_v2/otp_field_v2.dart';
+// import '../../Constant/colors.dart';
 //
 // class MyImageWidget extends StatefulWidget {
 //
@@ -32,7 +22,7 @@
 // }
 // class _MyImageWidgetState extends State<MyImageWidget> {
 //   String? imageUrl;
-//
+// var otpController;
 //   _getImageUrl(String imageName) async {
 //     try {
 //       // Construct the reference to the file within the specific folder
@@ -52,7 +42,6 @@
 //   @override
 //   void initState() {
 //     super.initState();
-//     get_Fav();
 //     // _loadImage();
 //   }
 //
@@ -62,162 +51,88 @@
 //   //     imageUrl = url;
 //   //   });
 //   // }
+//   OtpTextFieldsController otpTextFieldsController = OtpTextFieldsController();
 //
+//   void changeMode(OtpState otpState) {
+//     // changing mode for changing design
+//     // modes=> {success,loading,error,normal}  otpTextFieldsController.currentState.value = otpState;
+//   }
+//
+//   void changeOtpValues(String otpValue) {
+//     // if you have auto fill sms you should use this
+//     otpTextFieldsController.otpValue.value = otpValue;
+//   }
 //
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       body:  Container(
-//         height: double.infinity,
-//         decoration: const BoxDecoration(
-//           image: DecorationImage(
-//             image: AssetImage("icons/bg.jpeg"),
-//             fit: BoxFit.cover,
-//             colorFilter:
-//             ColorFilter.mode(Colors.black45, BlendMode.darken),
-//           ),
-//         ),
-//         child: FutureBuilder<List<dynamic>>(
-//           future: get_Fav(),
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return shimmer(5); // Show a loading spinner while waiting
-//             } else if (snapshot.hasError) {
-//               return Text('Error: ${snapshot.error}'); // Handle error
-//             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//               return Container(color: const Color(0xffffffff),
-//                 child: Column(
-//                   children: [
-//                     const SizedBox(
-//                       height: 200,
-//                     ),
-//                     Image.asset(
-//                       "images/fav.jpeg",
-//                       height: 170,
-//                     ),
-//                     const Text(
-//                       "There are not any item in your favorites",
-//                       style: TextStyle(fontSize: 20, color: Colors.black54),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             }
-//             else if (snapshot.hasData) {
-//               var data = snapshot.data!;
-//               return Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: GridView.builder(
-//                   padding: EdgeInsets.zero,
-//                   shrinkWrap: true,
-//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                     crossAxisSpacing: 10,
-//                     mainAxisSpacing: 10,
-//                     crossAxisCount: 2,
-//                     // childAspectRatio:0.8
-//                     mainAxisExtent:260,
-//                   ),
-//                   itemCount: snapshot.data!.length,
-//                   physics: const ClampingScrollPhysics(),
-//                   itemBuilder: (BuildContext ctx, i) {
-//                     return customWidget(context,data, i);
-//                   },
-//                 ),
-//               );
-//             } else {
-//               return Text('No favorites found.');
-//             }
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-// Widget customWidget(BuildContext context, dynamic data, int index){
-//   return Container(height: 100,color:const Color.fromRGBO(206,147,216,4),
-//     child: InkWell(
-//       onTap: () {
-//         Get.to(()=> item(
-//           data[index]['id'],
-//           data[index]['name'],
-//           data[index]['price'],
-//           data[index]['image'],
-//           data[index]['image_details'],
-//         ));
-//       },
-//       child: Column(
-//         children: [
-//           SizedBox(height:180,width: double.maxFinite,
-//               child:CachedNetworkImage(
-//                 imageUrl: "${data![index]['image']}",fit: BoxFit.fill,
-//                 placeholder: (context, url) =>  SkeletonAvatar(
-//                   style: SkeletonAvatarStyle(
-//                     width: double.infinity,
-//                     height: 180,
-//                     shape: BoxShape.rectangle,
-//                     // borderRadius: BorderRadius.circular(50), // Adjust as needed
-//                   ),
-//                 ),
-//                 errorWidget: (context, url, error) => Icon(Icons.error),
-//               )
-//           ), Align(
-//             alignment: Alignment.bottomCenter,
-//             child: Container(
-//               decoration: const BoxDecoration(
-//                 color: Colors.white,
-//               ),
-//               child: Column(
-//                 mainAxisAlignment:MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Padding(
-//                     padding: const EdgeInsets.only(left:8),
-//                     child: Text("${data![index]['name']}",
-//                         style: const TextStyle(fontSize:18,fontWeight: FontWeight.bold)),
-//                   ),
-//                   Row(
-//                     children: [
-//                       Padding(
-//                         padding:
-//                         const EdgeInsets.only(left: 10),
-//                         child: Text(
-//                             "${data![index]['price']} EGP",
-//                             style:const TextStyle(fontSize:18,fontWeight: FontWeight.bold,color: Colors.green)
-//                         ),
-//                       ),
-//                       const Expanded(child: SizedBox()),
-//                       IconButton(
-//                         icon: const FaIcon(
-//                           FontAwesomeIcons.xmark,
-//                           size: 20,
-//                         ),
-//                         onPressed: () async {
-//                           print(data[index]['idp']);
-//                           // var favoritesBox = Hive.box('Favorite');
-//                           // List<dynamic> allFavorites = favoritesBox.values.toList();
-//                           // print(allFavorites);
-//                           // print(allFavorites.length);
-//                           // await favbox?.clear();
-//                           await favbox?.delete(data[index]['idp']);
-//                           // setState(() {
-//                             get_Fav();
-//                           // });
-//                           // print("$fetch");
-//                           // await delete(
-//                           //     snapshot.data![index]['id']);
-//                           // setState(() {
-//                           //   _tasks=get_fav();
-//                           // });
-//                         },
-//                       ),
-//                     ],
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
+//         body: SingleChildScrollView(
+//         physics: const AlwaysScrollableScrollPhysics(),
+//     child: Container(padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
+//     child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+//     children: [
+//     const Text("Verification Code",
+//     style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),),
+//     const Padding(
+//     padding: EdgeInsets.all(8.0),
+//     child: Column(
+//     children: [
+//     Text("We Sent you a code.", style: TextStyle(
+//     fontSize:18, fontWeight: FontWeight.bold),),
+//     Text("Please enter it below.", style: TextStyle(
+//     fontSize: 18, fontWeight: FontWeight.bold),),
+//     ],
 //     ),
-//   );
-//
+//     ), const SizedBox(height: 50),
+//       OTPTextFieldV2(
+//         controller: otpController,
+//         length: 5,
+//         width: MediaQuery.of(context).size.width,
+//         textFieldAlignment: MainAxisAlignment.spaceAround,
+//         fieldWidth:55,
+//         fieldStyle: FieldStyle.underline,
+//         outlineBorderRadius: 15,
+//         style: TextStyle(fontSize:35,color: purplefav),
+//         onChanged: (pin) {
+//           print("Changed: " + pin);
+//         },
+//         onCompleted: (pin) {
+//           print("Completed: " + pin);
+//         },hasError:false,
+//       ),
+//       Text("${otpController}")
+//       ]),
+//     )));
+//   }
+//   TextStyle defaultTextStyle(BuildContext context, String style) {
+//     // Define your logic for different text styles here
+//     switch (style) {
+//       case 'blwd2':
+//         return TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black);
+//       default:
+//         return TextStyle(fontSize: 18, color: Colors.black);
+//     }
+//   }
+//   // OtpTextFields(
+//   // onChanged: (otpValue, isFinished) {
+//   //
+//   // },onSubmitKeyboardPressed: () {
+//   //
+//   // },
+//   // otpLength:5,
+//   // otpTextFieldsController: OtpTextFieldsController(),
+//   // defaultTextStyle: const TextStyle(fontSize:30, color: Colors.black),
+//   // // textStyleLoading: defaultTextStyle(context, StyleText.blwd2).copyWith(color: Colors.grey),
+//   // textStyleSuccess: defaultTextStyle(context, StyleText.blwd2).copyWith(color: Colors.green),
+//   // textStyleError: defaultTextStyle(context, StyleText.blwd2).copyWith(color: Colors.red),
+//   // textStyleActive: defaultTextStyle(context, StyleText.blwd2).copyWith(color: Colors.blue),
+//   // decorationSuccessBox: BoxDecoration(color: Colors.greenAccent),
+//   // decorationErrorBox: BoxDecoration(color: Colors.redAccent),
+//   // decorationLoadingBox: BoxDecoration(color: Colors.grey),
+//   // decorationActiveBox: BoxDecoration(color: Colors.blueAccent),
+//   // decorationFilledBox: BoxDecoration(color: Colors.black12),
+//   // decorationEmptyBox: BoxDecoration(color:Color(0xFFF99BBD).withOpacity(0.3)),
+//   // ),
+// } class StyleText {
+//   static const String blwd2 = 'blwd2';
 // }

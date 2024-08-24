@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:skeletons/skeletons.dart';
 import 'package:test0/Models/sql.dart';
 import 'package:test0/Pages/catagory.dart';
+import 'package:test0/Pages/googlemap.dart';
 import 'package:test0/page.dart';
 import '../Bool.dart';
 import '../Constant/productcontroller.dart';
@@ -46,20 +48,6 @@ class _homeState extends State<home> {
     bool exists = Hive.box('Favorite').containsKey(idp);
     return exists;
   }
-  // check_Fav(List idp) async {
-  //   print(idp);
-  //   check_love=[];
-  //   for(var i=0;i<idp.length;i++){
-  //     if(check_love.length==idp.length){
-  //       break;
-  //     }else if(check_love.length<idp.length){
-  //       check_love.add(await existInHive(idp[i]));
-  //     }else{
-  //       break;
-  //     }
-  //   }
-  //   print(check_love);
-  // }
   List loves=[];
   check_Fav(List idp) async {
     check_love=[];
@@ -79,36 +67,30 @@ class _homeState extends State<home> {
       }
     }
   }
-  Future<dynamic> getProducts() async {
-    var response = await db.postRequest(linkviewtrend, {});
-    // var response = await db.postRequest(linkgetdata, {});
-    await check_Fav(await response['data'].map((item) => item['id']).toList());
-    // return response;
-  }
-  Future<dynamic> getP() async {
-    // var response = await db.postRequest(linkgetdata, {});
-    var response = await db.postRequest(linkviewtrend, {});
-    return response;
-  }
-  Future<List<Data>> getTrendingProducts() async {
-    var response = await productcontroller.get_data();
-    print(response);
-
-    List<Data> trendingProducts = response.where((product) => product.trend == '1').toList();
-    return trendingProducts;
-  }
-  fun()async{
-    var x=await productcontroller.get_data();
-     print(x);
-     print(x[1]);
-     print(x[1].image);
-     await mybox?.put("products", x);
-  }
-   fetchData() async {
+  // Future<dynamic> getProducts() async {
+  //   var response = await db.postRequest(linkviewtrend, {});
+  //   // var response = await db.postRequest(linkgetdata, {});
+  //   await check_Fav(await response['data'].map((item) => item['idp']).toList());
+  //   // return response;
+  // }
+  // Future<dynamic> getP() async {
+  //   // var response = await db.postRequest(linkgetdata, {});
+  //   var response = await db.postRequest(linkviewtrend, {});
+  //   return response;
+  // }
+  // Future<List<Data>> getTrendingProducts() async {
+  //   var response = await productcontroller.get_data();
+  //
+  //   List<Data> trendingProducts = response.where((product) => product.trend == '1').toList();
+  //   return trendingProducts;
+  // }
+  Future<dynamic> fetchData() async {
     var results = mybox?.get("trend");
-    print(results.runtimeType);
-    await check_Fav(await results.map((item) => item['idp']).toList());
-    await Future.delayed(Duration(seconds: 2));
+    if (results != null) {
+      await check_Fav(await results.map((item) => item['idp']).toList());
+    } else {
+      return []; // or handle it in a way that fits your app's logic
+    }
     return results;
   }
   @override
@@ -119,13 +101,6 @@ class _homeState extends State<home> {
     db = database();
     super.initState();
     fetchData();
-    // getProducts();
-    // getTrendingProducts();
-    // _tasks=getP();
-    // _controller = AnimationController(
-    //   duration: const Duration(seconds: 2), // Duration for one full rotation
-    //   vsync: this, // This is where the TickerProvider is needed
-    // )..repeat();
   }
 
   @override
@@ -197,21 +172,21 @@ class _homeState extends State<home> {
                   ),
                 ),
                 FutureBuilder(
-                  future: fetchData()??[],
+                  future: fetchData(),
                   builder: (context, AsyncSnapshot snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return shimmer(10);
                     } else
                       if (snapshot.hasError) {
+                        print("\\\n\n\n${snapshot.error}\n\n");
                       return Center(
                         child: Text("Error: ${snapshot.error}"),
                       );
-                    } else if (!snapshot.hasData) {
+                    } else if (!snapshot.hasData || snapshot.data == null || snapshot.data.isEmpty) {
                         return CircularProgressIndicator();
                       }
                       else if (snapshot.hasData) {
                         var data = snapshot.data ?? [];
-                        print("data::::$data");
                         return GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -244,17 +219,19 @@ class _homeState extends State<home> {
       if (index < check_love.length) { // Check if the index is within the range
         return InkWell(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => item(
+            Get.to(()=>item(
                     data[index]['idp'],
                     data[index]['name'],
                     data[index]['price'],
                     data[index]['image'],
                     data[index]['details_image'],
-                ),
-              ),
-            );
+                )
+            )?.then((_) {
+            setState(() {
+            (context as Element).reassemble();
+            Bool.get_count();
+            });
+            });
           },
       child: Column(
       children: [
@@ -304,37 +281,33 @@ class _homeState extends State<home> {
                     ),
                   ),
                   const Expanded(child: SizedBox()),
-                  Consumer<provide>(builder: (context, Bool, child) {
-                    // print("dd");
-                    // check_Fav(data.map((item) => item['idp']).toList());
-                    return IconButton(
-                      isSelected: Bool.list_home[index],
-                      icon: const FaIcon(
-                        FontAwesomeIcons.heart,
-                        size: 20,
-                      ),
-                      selectedIcon: const FaIcon(
-                        FontAwesomeIcons.solidHeart,
-                        color: Colors.red,
-                        size: 20,
-                      ),
-                      onPressed: () async {
-                        if (check_love[index]) {
-                          await sql.delete('Favorite', data[index]['idp']);
-                          Bool.list_ch_home(index, false);
-                        } else {
-                          await sql.insert('Favorite', {
-                            "id": data[index]['idp'],
-                            'name': data[index]['name'],
-                            'price': data[index]['price'],
-                            'image': data[index]['image'],
-                            'image_details': data[index]['details_image']
-                          });
-                          Bool.list_ch_home(index, true);
-                        }
-                              },
-                            );
-                          })
+                  IconButton(
+                    isSelected: Bool.list_home[index],
+                    icon: const FaIcon(
+                      FontAwesomeIcons.heart,
+                      size: 20,
+                    ),
+                    selectedIcon: const FaIcon(
+                      FontAwesomeIcons.solidHeart,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                    onPressed: () async {
+                      if (check_love[index]) {
+                        await sql.delete('Favorite', data[index]['idp']);
+                        Bool.list_ch_home(index, false);
+                      } else {
+                        await sql.insert('Favorite', {
+                          "id": data[index]['idp'],
+                          'name': data[index]['name'],
+                          'price': data[index]['price'],
+                          'image': data[index]['image'],
+                          'image_details': data[index]['details_image']
+                        });
+                        Bool.list_ch_home(index, true);
+                      }
+                            },
+                          )
                         ],
                       )
                     ]),
@@ -343,7 +316,7 @@ class _homeState extends State<home> {
           ),
         );
       } else {
-        return const Text("ffffffffffffffff"); // Return an empty widget if the index is out of range
+        return const Text("Error"); // Return an empty widget if the index is out of range
       }
     });
   }
@@ -351,10 +324,13 @@ class _homeState extends State<home> {
   Widget categoryButton(String imagePath,String page) {
     return InkWell(
       onTap: ()async{
-        var res = await sql.read("Favorite");
-       print(res);
-        Get.to(()=> catagory(page));
-       // Get.to(()=>MyImageWidget( imageName: 'Adley-Bracelet-768x768.jpg',));
+        Get.to(()=> catagory(page))?.then((_) {
+          setState(() {
+            (context as Element).reassemble();
+
+          });
+        });
+       // Get.to(()=>googlemap());
       },
       child: Container(
         margin: const EdgeInsets.only(right: 10),padding: const EdgeInsets.all(10),

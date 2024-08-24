@@ -142,6 +142,7 @@ class _cartState extends State<cart> {
                                         backgroundColor: Colors.white),
                                     onPressed: () async {
                                       Get.to(() => page(0));
+                                      // Navigator.of(context).pop();
                                     },
                                     child: const Text(
                                       "Continue shopping",
@@ -229,12 +230,11 @@ class _cartState extends State<cart> {
                                             children: [
                                               IconButton(
                                                   onPressed: () async {
-                                                    await sql.delete(
-                                                        'Cart',
-                                                        snapshot.data![i]
-                                                        ['id']);
+                                                    await sql.delete('Cart',snapshot.data![i]['id']);
                                                     setState(() {
+                                                      Bool.get_count();
                                                       _tasks = get_carts();
+                                                      // (context as Element).reassemble();
                                                     });
                                                   },
                                                   icon: const FaIcon(

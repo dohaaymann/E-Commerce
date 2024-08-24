@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Configurations of the app -->
-    <string name="app_name">Store</string>
+    <string name="app_name">Jw Store</string>
     <string name="facebook_app_id">6198438136447951234</string>
     <!-- The client token is available in Settings > Advanced > Security section of the app dashboard. -->
     <string name="facebook_client_token">26d9f4800664ec26ae196f8e96f99450</string>

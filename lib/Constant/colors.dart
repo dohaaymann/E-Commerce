@@ -9,4 +9,4 @@ Color accentPinkColor = const Color(0xFFF99BBD);
 Color accentDarkGreenColor = const Color(0xFF115C49);
 Color accentYellowColor = const Color(0xFFFFB612);
 Color accentOrangeColor = const Color(0xFFEA7A3B);
-Color purplefav=const Color.fromRGBO(103, 0, 92, 4);
+Color purplefav=const Color.fromRGBO(103, 0, 92, 4);  //68025D

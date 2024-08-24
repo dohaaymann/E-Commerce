@@ -3,14 +3,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test0/Constant/colors.dart';
-import 'package:test0/Pages/Address/add_address.dart';
-import 'package:test0/Pages/cart/order_completed.dart';
+import 'package:test0/Pages/User Pages/Address/add_address.dart';
+import 'package:test0/Pages/User Pages/Address/address.dart';
 
-import '../../Constant/links.dart';
 import '../../Models/Paypal.dart';
 import '../../Models/database.dart';
 import '../../main.dart';
 import 'cart.dart';
+import 'order_completed.dart';
 class Shipping extends StatefulWidget {
   var total, items;
   Shipping(this.total, this.items, {super.key});
@@ -131,9 +131,7 @@ class _ShippingState extends State<Shipping> {
                           },
                         );
                       }
-                      return add_address(onPressed: () {
-                        Navigator.of(context).pop();
-                      });
+                      return Text("data");
                     },
                   ),
                   const SizedBox(height: 20),

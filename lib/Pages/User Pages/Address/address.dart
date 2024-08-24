@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test0/Pages/Address/add_address.dart';
+import 'package:test0/Pages/User Pages/Address/address.dart';
+import 'package:test0/Pages/User Pages/Address/add_address.dart';
 import 'package:test0/main.dart';
 
-import '../../Constant/colors.dart';
-import '../../Constant/links.dart';
-import '../../Models/database.dart';
-import '../../Widgets/CustomButton.dart';
-import '../../page.dart';
+import '../../../Constant/colors.dart';
+import '../../../Constant/links.dart';
+import '../../../Models/database.dart';
+import '../../../Widgets/CustomButton.dart';
+import '../../../page.dart';
 
 class address extends StatefulWidget {
   const address({Key? key}) : super(key: key);

@@ -95,22 +95,16 @@ class _itemState extends State<item> {
   get_amount() async {
     var res = await sql.select(widget.idp);
     if (mounted) {
-      setState(() {});
+      setState(() {
+        if (res.isNotEmpty && res[0] != null ) {
+          amount = res[0]['quantity'] ?? 0; // Default to 0 if 'quantity' is null
+        } else {
+          amount = 0; // Default to 0 if no results are found
+        }
+      });
     }
-    amount=res[0]['quantity'];
+    // amount=res[0]['quantity']??0;
   }
-// get_amount() async {
-//     var res=await favbox?.get("${widget.idp}");
-//     if (mounted) {
-//       setState(() {
-//         if (res.isNotEmpty && res[0] != null && res[0].containsKey('quantity')) {
-//           amount = res[0]['quantity'] ?? 0; // Default to 0 if 'quantity' is null
-//         } else {
-//           amount = 0; // Default to 0 if no results are found
-//         }
-//       });
-//     }
-//   }
 
   get_item()async{
  // response=await db.postRequest(linkviewitem,{
@@ -129,10 +123,7 @@ SQLDB sql=SQLDB();
   void initState(){
   get_amount();
   quantity=1;
-  // get_item();
-  // _tasks = get_item();
   check_Fav();
-  // auth.currentUser?.reload();
   super.initState();
 }
   @override
@@ -245,6 +236,7 @@ SQLDB sql=SQLDB();
 
                     ),onPressed: ()async{
                       try{
+
                         var res=await sql.insert('Cart',{
                           "id":widget.idp,
                           'name':widget.name.toString(),
@@ -254,6 +246,7 @@ SQLDB sql=SQLDB();
                           'quantity':quantity,
                           'category':''
                         });
+                        Bool.get_count();
                         if (res!=null){
                           Get.snackbar(
                             '', "Item added to cart", // Message

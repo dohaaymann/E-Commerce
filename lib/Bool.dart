@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'main.dart';
+
 class fields extends ChangeNotifier{
   var semail =false;
   var spass = false,ph;
@@ -26,6 +28,9 @@ class fields extends ChangeNotifier{
 
 
 class provide extends ChangeNotifier{
+  provide(){
+    get_count();
+  }
   var b=true;
   var email,pass,phone,obscure=false;
   var ver_ph,T_error=false,ver;
@@ -34,7 +39,7 @@ class provide extends ChangeNotifier{
   List list_home=[];
   List list_cata=[];
   List list_Fav=[];
-
+  var count_cart;
   bool _hasFetchedFav = false;
 
   bool get hasFetchedFav => _hasFetchedFav;
@@ -43,7 +48,12 @@ class provide extends ChangeNotifier{
     _hasFetchedFav = value;
     notifyListeners();
   }
-
+  get_count()async{
+    var x=await sql.selectsum();
+    count_cart=x[0]['COUNT(*)']??0;
+    notifyListeners();
+    return count_cart;
+  }
   list_ch_home(var x,var v) {
    list_home[x]=v;
     notifyListeners();
@@ -91,9 +101,12 @@ class provide extends ChangeNotifier{
   } ch_F_error(){
    T_error=true;
     notifyListeners();
-  }ch_ver(var x){
+  }
+  ch_ver(var x){
     ver_ph=x;
     notifyListeners();
+    return ver_ph;
+
   } ch_pass(var x){
     pass=x;
     notifyListeners();

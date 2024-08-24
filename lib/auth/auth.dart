@@ -201,7 +201,7 @@ final User = FirebaseFirestore.instance.collection("account");
                                                               strokeWidth: 7,
                                                             ))));
                                               });
-                                          Timer(const Duration(seconds: 3), () {
+                                          Timer(const Duration(seconds:1), () {
                                             Navigator.of(context).pop(dialogContext);
                                             Get.to(() => page(2));
                                           });
