@@ -37,14 +37,14 @@ class DeleteAccount extends StatelessWidget {
       }
     } catch (e) {
       print('Error during re-authentication: $e');
-      Fluttertoast.showToast(
-        msg: "Error during re-authentication: $e",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      // Fluttertoast.showToast(
+      //   msg: "Error during re-authentication: $e",
+      //   toastLength: Toast.LENGTH_LONG,
+      //   gravity: ToastGravity.BOTTOM,
+      //   backgroundColor: Colors.red,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0,
+      // );
     }
   }
 
@@ -56,6 +56,7 @@ class DeleteAccount extends StatelessWidget {
       if (user != null) {
         // Delete the user's account
         await user.delete().then((value) async {
+          print("deleted");
           Get.to(() => page(0));
           await FirebaseFirestore.instance
               .collection("account")
@@ -64,16 +65,16 @@ class DeleteAccount extends StatelessWidget {
         });
 
         // Sign out the user after deletion
-        await FirebaseAuth.instance.signOut();
-
-        Fluttertoast.showToast(
-          msg: "Account deleted successfully.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        await FirebaseAuth.instance.signOut().then((_) {
+          Fluttertoast.showToast(
+            msg: "Account deleted successfully.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        },);
       } else {
         Fluttertoast.showToast(
           msg: "No user is signed in.",
@@ -97,14 +98,7 @@ class DeleteAccount extends StatelessWidget {
         );
         // Re-authenticate the user before trying to delete the account again
       } else {
-        Fluttertoast.showToast(
-          msg: "Error: ${e.message}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+
       }
     }
   }

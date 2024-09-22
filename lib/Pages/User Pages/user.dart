@@ -64,14 +64,14 @@ class user extends StatelessWidget {
 
             }, icon:FaIcon(FontAwesomeIcons.facebook,color: Colors.blue[900],size:35,)),
             IconButton(onPressed: ()async{
-              Get.to(()=>Splash_Screen());
+              // Get.to(()=>Splash_Screen());
 
-              // const url = 'https://www.facebook.com/profile.php?id=100006949608192';
-              // if (await canLaunchUrl(Uri.parse(url))) {
-              //   await launchUrl(Uri.parse(url));
-              // } else {
-              //   throw 'Could not launch $url';
-              // }
+              const url = 'https://www.facebook.com/profile.php?id=100006949608192';
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url));
+              } else {
+                throw 'Could not launch $url';
+              }
 
             }, icon:const FaIcon(FontAwesomeIcons.instagram,color: Colors.pink,size:35,)),
             IconButton(onPressed: ()async{
@@ -119,7 +119,8 @@ class _account_pageState extends State<account_page> {
   }
 
     Future<dynamic> get_data() async {
-      print("${ await auth.currentUser!.phoneNumber}");
+      // print("${ await auth.currentUser!.phoneNumber}");
+      // print("${ await auth.currentUser!.email}");
     var c= await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).get();
     await mybox?.put("fname", c.get("fname"));
     await mybox?.put("pass", c.get("pass"));
@@ -127,15 +128,49 @@ class _account_pageState extends State<account_page> {
     await mybox!.put("phone", "${auth.currentUser!.phoneNumber??''}"??'');
 
     var db = database();
-    var response_id = await db.postRequest(linkget_id, {'email': "${auth.currentUser!.email}"});
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('id', int.parse(response_id['data'][0]['id']??'0'));
+    // var response_id = await db.postRequest(linkget_id, {'email': "${auth.currentUser!.email}"});
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   await prefs.setInt('id', int.parse(response_id['data'][0]['id']??'0'));
+    //
+    // var id = prefs.getInt('id');
+    // var response_address = await db.postRequest(linkview_address, {'user_id':'$id'});
+    // await mybox!.put("Address",response_address).then((_){print(response_address);});
 
-    var id = prefs.getInt('id');
-    var response_address = await db.postRequest(linkview_address, {'user_id':'$id'});
-    await mybox!.put("Address",response_address);
+    Future<void> storeDataInHive() async {
+      try {
+        // Get the current user's email
+        String? email = FirebaseAuth.instance.currentUser?.email;
 
-    return response_id;
+        if (email != null) {
+          // Fetch the documents from the "Address" sub-collection
+          QuerySnapshot? addressSnapshot = await FirebaseFirestore.instance
+              .collection("account")
+              .doc(email)
+              .collection("Address")
+              .get();
+
+          // Check if addressSnapshot is not null and contains documents
+          if (addressSnapshot != null && addressSnapshot.docs.isNotEmpty) {
+            // Convert the address documents into a list of maps (or any other structure you prefer)
+            List<Map<String, dynamic>> addressData = addressSnapshot.docs
+                .map((doc) => doc.data() as Map<String, dynamic>)
+                .toList();
+
+            // Store the data in the Hive box with the key "address-key"
+            await mybox?.put("Address", addressData);
+
+            print("Address data saved successfully in Hive.");
+          } else {
+            print("No address data found.");
+          }
+        } else {
+          print("User is not logged in.");
+        }
+      } catch (e) {
+        print("Error storing data in Hive: $e");
+      }
+    }
+    await storeDataInHive();
     }
 @override
   void initState() {
@@ -242,6 +277,7 @@ class _account_pageState extends State<account_page> {
                       }),
                       ink("Address", () async {
                          Get.to(()=>const address());
+                         // Get.to(()=>add_address(onPressed: () { Get.to(()=>const address());},));
                          // Get.to(()=>CheckoutPage());
                          // Get.to(()=>Shipping());
                          // Get.to(()=>payment_success());

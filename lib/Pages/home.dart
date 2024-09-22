@@ -29,7 +29,8 @@ class home extends StatefulWidget {
   @override
   State<home> createState() => _homeState();
 }
-List check_love=[];
+var check_love=[];
+var check_lovee=[];
 class _homeState extends State<home> {
   List<String> img = [
     'images/Earrings_07.jpeg',
@@ -50,23 +51,24 @@ class _homeState extends State<home> {
   }
   List loves=[];
   check_Fav(List idp) async {
-    check_love=[];
-    for(var i=0;i<idp.length;i++){
-      if(check_love.length==idp.length){
+    check_love = [];
+    check_lovee = [];
+
+    for (var i = 0; i < idp.length; i++) {
+
+      var t = await sql.get(idp[i]);
+      var value = t[0]["COUNT(*)"];
+      if (value.toString() == '1') {
+        !check_lovee.any((element) => element.containsKey(idp[i]))?check_lovee.add({idp[i]: true}):null;
+      } else if (value.toString() == '0') {
+        !check_lovee.any((element) => element.containsKey(idp[i]))?check_lovee.add({idp[i]: false}):null;
+      } else {
         break;
-      }else{
-        var t=await sql.get(idp[i]);
-        value=t[0]["COUNT(*)"];
-        if(value.toString()=='1'){
-          check_love.add(true);
-        }else if(value.toString()=='0'){
-          check_love.add(false);
-        }else{
-          break;
-        }
       }
     }
+     check_love=check_lovee.expand((map) => map.values).toList();
   }
+
   // Future<dynamic> getProducts() async {
   //   var response = await db.postRequest(linkviewtrend, {});
   //   // var response = await db.postRequest(linkgetdata, {});
@@ -106,6 +108,7 @@ class _homeState extends State<home> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height:70,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("icons/bg.jpeg"),
@@ -152,7 +155,7 @@ class _homeState extends State<home> {
                 const Padding(padding: EdgeInsets.all(3)),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
+                  child: Wrap(
                     children: [
                       categoryButton("icons/BBracelet (1).png","Bracelets"),
                       categoryButton("icons/necklace.png","Necklaces"),
@@ -334,7 +337,7 @@ class _homeState extends State<home> {
       },
       child: Container(
         margin: const EdgeInsets.only(right: 10),padding: const EdgeInsets.all(10),
-        // width: 100,
+        width: 100,
         // height: 90,
         alignment: Alignment.center,
         decoration: const BoxDecoration(

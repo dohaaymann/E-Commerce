@@ -7,7 +7,7 @@ import '../Models/productmodel.dart';
 
 class productcontroller{
    static get_data()async{
-    var url="https://7d76-197-34-178-50.ngrok-free.app/data";
+    var url="https://81cc-41-40-153-55.ngrok-free.app/data";
     // var url=linkview;  //http://192.168.1.15/JW store/view.php;
     var db=database();
     // var response = await db.postRequest(linkviewtrend, {});

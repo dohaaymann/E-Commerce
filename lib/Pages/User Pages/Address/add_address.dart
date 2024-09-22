@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csc_picker/csc_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test0/Pages/User Pages/Address/address.dart';
 import 'package:test0/Widgets/CustomButton.dart';
 import '../../../Constant/links.dart';
 import '../../../Models/database.dart';
+import '../../../Widgets/item_w.dart';
 
 class add_address extends StatefulWidget {
   final VoidCallback onPressed;
@@ -143,25 +146,43 @@ class _add_addressState extends State<add_address> {
           const SizedBox(height:30,),
           CustomButton("Add",street.text.isNotEmpty&&name_add.text.isNotEmpty ?
                   ()async{
-            var response = await db.postRequest(linkadd_address, {
-              'user_id':"$id",
-               'State':"$state??''",
-               'City':"${city??''}",
-               'Street':street.text,
-               'Name_add':name_add.text,
-            }).then((value) {
-              // Fluttertoast.showToast(
-              //     msg: "This is Center Short Toast",
-              //     toastLength: Toast.LENGTH_SHORT,
-              //     gravity: ToastGravity.CENTER,
-              //     timeInSecForIosWeb: 1,
-              //     backgroundColor: Colors.red,
-              //     textColor: Colors.white,
-              //     fontSize: 16.0
-              // );
-              // Navigator.of(context).pop();
-              Get.to(()=>const address());
-            });
+                    await FirebaseFirestore.instance.collection("account").doc(auth.currentUser?.email).collection("Address").doc().set({
+                      'user_id':"$id",
+                      'State':"$state??''",
+                      'City':"${city??''}",
+                      'Street':street.text,
+                      'Name_add':name_add.text,
+                    }).then((_){
+                      Fluttertoast.showToast(
+                          msg: "Address added successfully",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
+                      Get.to(()=>const address());
+                    });
+            // var response = await db.postRequest(linkadd_address, {
+            //   'user_id':"$id",
+            //    'State':"$state??''",
+            //    'City':"${city??''}",
+            //    'Street':street.text,
+            //    'Name_add':name_add.text,
+            // }).then((value) {
+            //   // Fluttertoast.showToast(
+            //   //     msg: "This is Center Short Toast",
+            //   //     toastLength: Toast.LENGTH_SHORT,
+            //   //     gravity: ToastGravity.CENTER,
+            //   //     timeInSecForIosWeb: 1,
+            //   //     backgroundColor: Colors.red,
+            //   //     textColor: Colors.white,
+            //   //     fontSize: 16.0
+            //   // );
+            //   // Navigator.of(context).pop();
+            //   Get.to(()=>const address());
+            // });
           }:null,250.0,40.0)
         ],),
       ),

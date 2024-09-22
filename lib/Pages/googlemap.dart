@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'package:test0/Widgets/item_w.dart';
-
-import '../Constant/colors.dart';
-import '../Constant/links.dart';
+import 'package:test0/Constant/links.dart';
 
 class googlemap extends StatefulWidget {
   const googlemap({Key? key}) : super(key: key);
@@ -15,120 +15,153 @@ class googlemap extends StatefulWidget {
 }
 
 class _googlemapState extends State<googlemap> {
-  var initialCameraPosition;
-  Location location = new Location();
-  List polylineCoordinates=[];
+  late CameraPosition initialCameraPosition ;
+  late bool serviceEnabled;
+  late LocationPermission permission;
+  List<LatLng> polylineCoordinates = [];
+  StreamSubscription<Position>? positionStream;
   PolylinePoints polylinePoints = PolylinePoints();
-var lat,lng;
-  var p1=PointLatLng(30.474218522464017, 31.200131804267798);
-  var p2=PointLatLng(30.456037743966284, 31.18070324659635);
-//   get_location()async{
-//
-//   bool _serviceEnabled;
-//   PermissionStatus _permissionGranted;
-//   LocationData _locationData;
-//
-//   _serviceEnabled = await location.serviceEnabled();
-//   if (!_serviceEnabled) {
-//     _serviceEnabled = await location.requestService();
-//     if (!_serviceEnabled) {
-//       return;
-//     }
-//   }
-//
-//   _permissionGranted = await location.hasPermission();
-//   if (_permissionGranted == PermissionStatus.denied) {
-//     _permissionGranted = await location.requestPermission();
-//     if (_permissionGranted != PermissionStatus.granted) {
-//       return;
-//     }
-//   }
-//   _locationData = await location.getLocation();
-//   lat=_locationData.latitude;
-//   lng=_locationData.lngitude;
-//   return _locationData;
-// }
+  late GoogleMapController mapController;
 
-  polylinepoints() async {
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        apiKey,
-        p1,
-        p2,
-        travelMode: TravelMode.driving
-    );
-    if(result.points.isNotEmpty){
-       result.points.forEach((point) {
-          polylineCoordinates.add(LatLng(point.latitude,point.longitude));
-       },);
-    } else{
-      print("Error:::${result.errorMessage}");
-    }
-    return polylineCoordinates;
-  }
+  List<Marker> markers = [
+    Marker(
+      markerId: MarkerId("2"),
+      position: LatLng(30.474218522464017, 31.200131804267798),
+      infoWindow: InfoWindow(title: "Origin"),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    ),
+    Marker(
+      markerId: MarkerId("3"),
+      position: LatLng(30.456037743966284, 31.18070324659635),
+    ),
+  ];
+
+  final Set<Polyline> _polylines = {};
 
   @override
   void initState() {
-    initialCameraPosition=CameraPosition(
-        target: LatLng(30.548378562955463, 31.139540633313032),
-      zoom: 17
-    );
-    // TODO: implement initState
     super.initState();
-    update_location();
-    // get_location();
+    initialCameraPosition = CameraPosition(
+      target: LatLng(30.474218522464017, 31.200131804267798),
+      zoom: 17,
+    );
+    _checkLocationPermission();
   }
-  update_location()async{
-     location.onLocationChanged.listen((event) {
-       print(event);
-       var cam=CameraPosition(target: LatLng(event.latitude!, event.longitude!),zoom: 17);
-       // var cam=CameraPosition(target: LatLng(30.474292496252875, 31.200099617759623),zoom: 17);
-       mapController.animateCamera(CameraUpdate.newCameraPosition(cam));
-     },);
+
+  Future<void> _checkLocationPermission() async {
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.whileInUse) {
+      positionStream = Geolocator.getPositionStream().listen(
+            (Position? position) {
+          if (position != null && mounted) {
+            initialCameraPosition = CameraPosition(
+              target:LatLng(position.latitude, position.longitude),
+              zoom: 17,
+            );
+            mapController.animateCamera(
+              CameraUpdate.newLatLng(
+                LatLng(position.latitude, position.longitude),
+              ),
+            );
+            setState(() {
+              markers.add(
+                Marker(
+                  markerId: MarkerId("1"),
+                  icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                  position: LatLng(position.latitude, position.longitude),
+                ),
+              );
+            });
+          }
+        },
+      );
+    }
   }
-  late GoogleMapController mapController;
+
+  @override
+  void dispose() {
+    // Cancel the position stream when the widget is disposed
+    positionStream?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Padding(
-        padding:EdgeInsets.only(left:30,bottom:5),
-        child: Align(alignment:Alignment.bottomLeft ,
+        padding: EdgeInsets.only(left: 30, bottom: 5),
+        child: Align(
+          alignment: Alignment.bottomLeft,
           child: FloatingActionButton(
-            shape:CircleBorder(),
-            backgroundColor:purplefav,
-              child:Icon(Icons.location_on,color: Colors.white,),
-              onPressed:()async{
-           //  var newlocation=CameraPosition(
-           //      target: LatLng(lat, lng),
-           //      zoom: 17
-           //  );
-           // mapController.animateCamera(CameraUpdate.newCameraPosition(newlocation));
-            update_location();
-            // print("${await get_location()}");
-          }),
+            backgroundColor: Colors.purple,
+            child: Icon(Icons.location_on, color: Colors.white),
+            onPressed: () async {
+              PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+                apiKeymap,
+                PointLatLng(
+                  markers[0].position.latitude,
+                  markers[0].position.longitude,
+                ),
+                PointLatLng(
+                  markers[1].position.latitude,
+                  markers[1].position.longitude,
+                ),
+                travelMode: TravelMode.driving,
+                wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
+              );
+
+              if (result.points.isNotEmpty && mounted) {
+                setState(() {
+                  polylineCoordinates = result.points
+                      .map((e) => LatLng(e.latitude, e.longitude))
+                      .toList();
+                  _polylines.add(
+                    Polyline(
+                      polylineId: PolylineId("polyline"),
+                      points: polylineCoordinates,
+                      color: Colors.green,
+                    ),
+                  );
+                });
+              }
+            },
+          ),
         ),
       ),
       body: Stack(
         children: [
           GoogleMap(
             mapType: MapType.normal,
-            initialCameraPosition:initialCameraPosition,
-            onMapCreated:(controller) {
-              mapController=controller;
+            initialCameraPosition: initialCameraPosition,
+            onMapCreated: (controller) {
+              mapController = controller;
             },
-            markers: {Marker(
-              markerId:MarkerId("كلية الحاسبات والذكاء الاصطناعي"),
-              position: LatLng(30.474218522464017, 31.200131804267798),
-            ),
-              Marker(
-              markerId:MarkerId("محطة بنها"),
-              position: LatLng(30.456037743966284, 31.18070324659635),
-            ),
-            // },
-              // polylines:Set<polylinePoints>.of(polylinePoints.va)
-          },
+            polylines: _polylines,
+            markers: markers.toSet(),
           ),
         ],
-      )
+      ),
     );
   }
 }
+
+// Position position = await Geolocator.getCurrentPosition();
+// Markers.add(Marker(markerId: MarkerId("1"),position: LatLng(position.latitude, position.longitude)));
+// mapController.moveCamera(CameraUpdate.newCameraPosition(
+//     CameraPosition(target: LatLng(position.latitude, position.longitude),zoom: 14)));

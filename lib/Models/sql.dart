@@ -76,7 +76,7 @@ class SQLDB{
   }
   get(var idp) async {
     Database? mydb = await db;
-    var res = await mydb?.rawQuery("SELECT COUNT(*) FROM Favorite WHERE id = ?",[idp]);
+    var res = await mydb?.rawQuery("SELECT COUNT(*) FROM Favorite WHERE id =$idp");
     return res;
   }
 

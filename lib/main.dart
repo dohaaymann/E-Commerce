@@ -14,15 +14,19 @@ import 'package:test0/Pages/Favorite.dart';
 import 'package:test0/auth/DeleteAccount.dart';
 import 'package:test0/page.dart';
 import 'package:test0/splash_screen.dart';
+import 'package:test0/stripe_payment/stripe_keys.dart';
 import 'Bool.dart';
 import 'Constant/productcontroller.dart';
 import 'Constant/links.dart';
 import 'Models/uploaddata.dart';
+import 'Pages/googlemap.dart';
 import 'Pages/home.dart';
 import 'Pages/cart/cart.dart';
 import 'Pages/item.dart';
 import 'firebase_options.dart';
 import 'onboarding.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
+
 Box? mybox;
 // Box? favbox;
 Box? cartbox;
@@ -41,15 +45,16 @@ get_products()async{
   var response = await db.postRequest(linkview, {});
   print("respone::::::::::$response");
   if(response==null){
-    // await mybox?.put("products", await productcontroller.get_data());
+    await mybox?.put("products", await productcontroller.get_data());
     print("respone");
   }
   else{
     print("cash");
-    // await mybox?.put("products", response);
+    await mybox?.put("products", response);
   }
 }
 void main() async {
+  // Stripe.publishableKey=ApiKeys.publishedKey;
   WidgetsFlutterBinding.ensureInitialized();
   var appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
@@ -91,7 +96,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: mybox!.isNotEmpty?Splash_Screen():Onboarding_1(),
+      // home: mybox!.isNotEmpty?Splash_Screen():Onboarding_1(),
+      // home: googlemap(),
+      home: page(0),
       routes: {
         "cart": (context) => const cart(),
         // "page":(context) => page(),

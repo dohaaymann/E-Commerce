@@ -45,12 +45,12 @@ class _code_phState extends State<code_ph> {
 
   Future<void> reauthenticateUser(String smsCode, String verificationId) async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: "AD8T5Iu8iMlMLC0WivC2MZM-jv7JbD9_ZPFFeN1O8pc1gX53VsphBjtzYaOv0qZhBVv71WGFsqcHbrkiPcKQL-coreRaL3yP1CAhHtGHF1rp3jix27UuvNTxKSCnJj5FMdzLQRMe9JqcS3GO-S6lVIsiZCClMDNwrSjlP87MF69YZD6T5v2rtEx6iHFFYUFTyKinjXTuq71DABmuHTmpNlR3lzuMseh4wNdR8p38OtYMcaNzMjtYaok",
+      verificationId:verificationId,
       smsCode: smsCode,
     );
 
     await FirebaseAuth.instance.currentUser?.reauthenticateWithCredential(credential).then((_)async{
-      await updatePhoneNumber(smsCode,"AD8T5Iu8iMlMLC0WivC2MZM-jv7JbD9_ZPFFeN1O8pc1gX53VsphBjtzYaOv0qZhBVv71WGFsqcHbrkiPcKQL-coreRaL3yP1CAhHtGHF1rp3jix27UuvNTxKSCnJj5FMdzLQRMe9JqcS3GO-S6lVIsiZCClMDNwrSjlP87MF69YZD6T5v2rtEx6iHFFYUFTyKinjXTuq71DABmuHTmpNlR3lzuMseh4wNdR8p38OtYMcaNzMjtYaok").then((_) {
+      await updatePhoneNumber(smsCode,verificationId).then((_) {
         print("phhhone updated");
       },);
     },);
@@ -135,7 +135,6 @@ class _code_phState extends State<code_ph> {
                     onCompleted: (pin) {
                       smsCode = pin;
                       Bool.ch_ver(pin);
-                      print("Completed: $pin");
                     },
                     hasError: isError,
                   ),
@@ -243,9 +242,6 @@ class _code_phState extends State<code_ph> {
                         }
                       }
                           : () async {
-                         print("change");
-                        print(Bool.ver_ph);
-                        print(widget.verId);
                         try {
                           await reauthenticateUser(Bool.ver_ph,Bool.ver_ph);
 
@@ -308,10 +304,11 @@ class _code_phState extends State<code_ph> {
                               fontSize: 16.0,
                             );
                           } else {
-                            print("$errorMessage");
-                            print("$isError");
+                            // print("$errorMessage");
+                            // print("$isError");
+                            var result = errorMessage.replaceAll(RegExp(r'\b[firebase_auth/session-expired]\b', caseSensitive: false), "").trim();
                             Fluttertoast.showToast(
-                              msg: errorMessage,
+                              msg: result,
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,

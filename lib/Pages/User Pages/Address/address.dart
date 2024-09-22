@@ -24,101 +24,14 @@ class address extends StatefulWidget {
 
 class _addressState extends State<address> {
   @override
-//   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
-//   static const CameraPosition _kLake = CameraPosition(
-//       bearing: 192.8334901395799,
-//       target: LatLng(37.43296265331129, -122.08832357078792),
-//       tilt: 59.440717697143555,
-//       zoom: 19.151926040649414);
-//
-//   Future<Position> _determinePosition() async {
-//     bool serviceEnabled;
-//     LocationPermission permission;
-//
-//     // Test if location services are enabled.
-//     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-//     if (!serviceEnabled) {
-//       // Location services are not enabled don't continue
-//       // accessing the position and request users of the
-//       // App to enable the location services.
-//       return Future.error('Location services are disabled.');
-//     }
-//
-//     permission = await Geolocator.checkPermission();
-//     if (permission == LocationPermission.denied) {
-//       permission = await Geolocator.requestPermission();
-//       if (permission == LocationPermission.denied) {
-//         return Future.error('Location permissions are denied');
-//       }
-//     }
-//
-//     if (permission == LocationPermission.deniedForever) {
-//       // Permissions are denied forever, handle appropriately.
-//       return Future.error(
-//           'Location permissions are permanently denied, we cannot request permissions.');
-//     }
-//
-//     // When we reach here, permissions are granted and we can
-//     // continue accessing the position of the device.
-//     return await Geolocator.getCurrentPosition();
-//   }
-//   Future<Position> getUserCurrentLocation() async {
-//     bool isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
-//
-//     if (!isLocationServiceEnabled) {
-//       // Location services are not enabled, handle accordingly.
-//       return Future.error("Location services are disabled");
-//     }
-//
-//     try {
-//       await Geolocator.requestPermission();
-//       return await Geolocator.getCurrentPosition();
-//     } on MissingPluginException catch (e) {
-//       // Handle MissingPluginException here.
-//       return Future.error("Location plugin is not implemented on this platform");
-//     } catch (e) {
-//       // Handle other exceptions here.
-//       return Future.error("Error getting current location");
-//     }
-//   }
-//   String dropdownValue = '**** **** **** 8789';
-//   final CameraPosition _kGooglePlex = CameraPosition(
-//     target: LatLng(37.42796133580664, -122.085749655962),
-//     zoom: 14.4746,
-//   );
-//
-//   GoogleMapController? myMapController;
-// // on below line we have specified camera position
-//   static final CameraPosition _kGoogle = const CameraPosition(
-//     target:LatLng( 30.033333,  31.233334),
-//     zoom: 14.4746,
-//   );
-
-  // Future<Prediction?> showGoogleAutoComplete(BuildContext context) async {
-  //   Prediction? p = await PlacesAutocomplete.show(
-  //       offset: 0,
-  //       radius: 1000,
-  //       strictbounds: false,
-  //       region: "us",
-  //       language: "en",
-  //       context: context,
-  //       mode: Mode.overlay,
-  //       apiKey: AppConstants.kGoogleApiKey,
-  //       components: [new Component(Component.country, "us")],
-  //       types: ["(cities)"],
-  //       hint: "Search City",
-  //       // sessionToken: Uuid().generateV4(),
-  //       //google_map_webservice package
-  //   // Return, null if p is null
-  //   return p;
-  // }
   var db=database();
   var id;
   Future<dynamic> get_data() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-     id = prefs.getInt('id');
-    var response = await db.postRequest(linkview_address, {'user_id':'$id'});
-    return  response??mybox?.get("Address");
+     // SharedPreferences prefs = await SharedPreferences.getInstance();
+     // id = prefs.getInt('id');
+    // var response = await db.postRequest(linkview_address, {'user_id':'$id'});
+
+    return await mybox?.get("Address");
   }
   var _tasks;
   @override
@@ -144,12 +57,13 @@ class _addressState extends State<address> {
             child:FutureBuilder(
           future: _tasks,
           builder: (context, AsyncSnapshot snapshot) {
+            print(snapshot.data);
              if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(), );
              } else if (snapshot.hasError) {
              return Center(
                  child: Text("Error: ${snapshot.error}"),);
-             } else if (!snapshot.hasData||snapshot.data['data']==null||snapshot.data['data'].length==0) {
+             } else if (!snapshot.hasData||snapshot.data==null||snapshot.data.length==0) {
                  return Column(
                       children:[
                         const SizedBox(height:40,),
@@ -163,14 +77,16 @@ class _addressState extends State<address> {
                       ],
                     );
             }else if(snapshot.hasData) {
-               var data=snapshot.data['data'];
+               var data=snapshot.data;
                 return Stack(
                   children: [
                     Padding(
                       padding:const EdgeInsets.only(right: 5,bottom:20),
                       child: Align(alignment: Alignment.bottomRight,
                         child: FloatingActionButton(
-                          onPressed: (){
+                          onPressed: ()async{
+                            var x=await mybox?.get("address_key");
+                            print(x);
                             Get.to(()=> add_address(onPressed: () { Get.to(()=>const address()); },));
                           },
                           backgroundColor: purplefav,shape: const CircleBorder(),

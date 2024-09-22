@@ -72,22 +72,30 @@ dependencies:
   hive: ^2.2.3
   path_provider: ^2.0.15
   skeletons: ^0.0.3
-  location: ^7.0.0
   flutter_polyline_points: ^1.0.0
   otp_text_field_v2: ^1.0.3
   google_fonts: ^4.0.4
-  json_annotation: ^4.1.0
+#  json_annotation: ^4.1.0
   countnumberbutton: ^0.0.7
   dio_http_cache: ^0.3.0
+  geolocator: ^12.0.0
+#  stripe_android:
+#  flutter_stripe:
+#  flutter_stripe: ^11.0.0
 #  flutter_launcher_icons: ^0.9.3
 
 dependency_overrides:
   json_annotation: ^4.8.0
-
+#  flutter_stripe: ^11.0.0
+#  stripe_android:  ^11.0.0
+#  stripe_ios: ^9.5.1
+#  stripe_platform_interface:  ^11.0.0
 
 dev_dependencies:
   json_serializable: any
   flutter_launcher_icons: ^0.9.2
+
+
 
   flutter_test:
     sdk: flutter
@@ -98,11 +106,18 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
+flutter_launcher_icons:
+  android: "true"
+  ios: true
+  image_path: "icons/launcher.jpeg"
+  background_color: "#68025D"
+  adaptive_icon_foreground: "icons/launcher.jpeg"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -110,19 +125,14 @@ flutter:
   uses-material-design: true
 
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "icons/woman-jewelry.png"
-  background_color: "#68025D"
   # android min sdk min:16, default 21
 
   # To add assets to your application, add an assets section, like this:
-
-
   assets:
     - images/
     - icons/
+
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

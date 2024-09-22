@@ -154,30 +154,21 @@ final User = FirebaseFirestore.instance.collection("account");
 
                                       try {
                                         GoogleSignInAccount?googleSignInAccount =await GoogleSignIn().signIn();
-                                        GoogleSignInAuthentication?googleSignInAuthentication =
-                                        await googleSignInAccount?.authentication;
-                                        AuthCredential credential =
-                                        GoogleAuthProvider.credential(
-                                          accessToken:
-                                          googleSignInAuthentication
-                                              ?.accessToken,
-                                          idToken: googleSignInAuthentication
-                                              ?.idToken,
-                                        );
+                                        GoogleSignInAuthentication?googleSignInAuthentication =await googleSignInAccount?.authentication;
+                                        AuthCredential credential =GoogleAuthProvider.credential(
+                                          accessToken:googleSignInAuthentication ?.accessToken,
+                                          idToken: googleSignInAuthentication?.idToken,);
                                         await auth.signInWithCredential(credential).then((value)async{
                                           var authResult = await auth.signInWithCredential(credential);
                                         var user = authResult.user;
-                                          var response = await db.postRequest(linkadduser,{
-                                            'email':'${user?.email}',
-                                            'fname':'${user?.displayName}',
-                                            'lname':'${user?.displayName}',
-                                            'pass':null,
-                                            'phone':null,
-                                          } );
-                                          await FirebaseFirestore.instance
-                                              .collection("account")
-                                              .doc(user?.email)
-                                              .set({
+                                          // var response = await db.postRequest(linkadduser,{
+                                          //   'email':'${user?.email}',
+                                          //   'fname':'${user?.displayName}',
+                                          //   'lname':'${user?.displayName}',
+                                          //   'pass':null,
+                                          //   'phone':null,
+                                          // } );
+                                          await FirebaseFirestore.instance.collection("account").doc(user?.email).set({
                                             "fname": user?.displayName,
                                             "lname": user?.displayName,
                                             "pass": null,
@@ -185,7 +176,7 @@ final User = FirebaseFirestore.instance.collection("account");
                                             "phone": null
                                           });
                                           showDialog(
-                                              context: context,
+                                              context: dialogContext,
                                               builder: (BuildContext context) {
                                                 return Container(
                                                     color: Colors.black45,

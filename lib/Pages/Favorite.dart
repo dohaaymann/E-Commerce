@@ -34,6 +34,7 @@ class _FavoriteState extends State<Favorite> {
 
   @override
   void initState() {
+    print("ffffa");
     super.initState();
     get_fav();
   }
